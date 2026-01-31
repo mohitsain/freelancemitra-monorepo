@@ -44,11 +44,12 @@ class CertificationItem(BaseModel):
 
 
 class TestimonialItem(BaseModel):
-    """Testimonial entry."""
+    """Testimonial entry. imageKey: S3 key for optional client/testimonial image."""
 
     clientName: str = ""
     clientTitle: str = ""
     testimonial: str = ""
+    imageKey: str = ""
 
 
 class OnboardingCreate(BaseModel):
