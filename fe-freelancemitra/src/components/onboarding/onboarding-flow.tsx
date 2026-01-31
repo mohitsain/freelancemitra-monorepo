@@ -108,6 +108,7 @@ export interface OnboardingData {
     clientName: string;
     clientTitle: string;
     testimonial: string;
+    imageKey: string;
   }>;
 }
 
@@ -249,7 +250,7 @@ export default function OnboardingFlow() {
     personalWebsite: '',
     
     // Testimonials
-    testimonials: [{ clientName: '', clientTitle: '', testimonial: '' }],
+    testimonials: [{ clientName: '', clientTitle: '', testimonial: '', imageKey: '' }],
   });
 
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -448,17 +449,14 @@ export default function OnboardingFlow() {
             <HStack justify="space-between" align="center" w="full" flexWrap="wrap" gap={2}>
           <HStack gap={3} align="center" minW={0} flex={1}>
             <Box
-              w={10}
-              h={10}
+              as="img"
+              src="/FreelanceMitraIcon.png"
+              alt="FreelanceMitra"
+              w="56px"
+              h="56px"
               flexShrink={0}
-              borderRadius="full"
-              bg="gradient-to-br from-blue.500 to-purple.600"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Text fontSize="xl" color="white" fontWeight="bold">🚀</Text>
-            </Box>
+              objectFit="contain"
+            />
             <Box minW={0} flex={1}>
               <Text color="gray.600" fontSize="sm" _dark={{ color: 'gray.400' }}>
                 Complete Your Profile
@@ -493,7 +491,7 @@ export default function OnboardingFlow() {
           </HStack>
             </HStack>
 
-            {/* Progress Bar: segmented by steps, step no in circle at current segment; click segment to go to step */}
+            {/* Progress Bar: segmented by steps, step number visible in each segment; click segment to go to step */}
             <Box
               w="full"
               position="relative"
@@ -539,32 +537,42 @@ export default function OnboardingFlow() {
                         />
                       )}
                     </Box>
+                    <Box
+                      position="absolute"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                      zIndex={2}
+                      pointerEvents="none"
+                      w="20px"
+                      h="20px"
+                      borderRadius="full"
+                      bg={i <= currentStep ? 'white' : 'white'}
+                      border="2px"
+                      borderColor={i <= currentStep ? 'green.500' : 'gray.300'}
+                      _dark={{
+                        bg: i <= currentStep ? 'gray.800' : 'gray.700',
+                        borderColor: i <= currentStep ? 'green.400' : 'gray.500',
+                      }}
+                      boxShadow={i <= currentStep ? '0 1px 4px rgba(0, 0, 0, 0.2)' : '0 1px 2px rgba(0, 0, 0, 0.08)'}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text
+                        fontSize="xs"
+                        fontWeight="bold"
+                        color={i <= currentStep ? 'green.700' : 'gray.500'}
+                        _dark={{
+                          color: i <= currentStep ? 'green.300' : 'gray.400',
+                        }}
+                      >
+                        {i + 1}
+                      </Text>
+                    </Box>
                   </Box>
                 ))}
               </HStack>
-              <Box
-                position="absolute"
-                top="50%"
-                left={`${((currentStep + 0.5) / STEPS.length) * 100}%`}
-                transform="translate(-50%, -50%)"
-                zIndex={2}
-                pointerEvents="none"
-                w="24px"
-                h="24px"
-                borderRadius="full"
-                bg="white"
-                border="2px"
-                borderColor="green.500"
-                boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                _dark={{ bg: 'gray.800', borderColor: 'green.400' }}
-              >
-                <Text fontSize="xs" fontWeight="bold" color="green.700" _dark={{ color: 'green.300' }}>
-                  {currentStep + 1}
-                </Text>
-              </Box>
             </Box>
           </Stack>
         </Box>

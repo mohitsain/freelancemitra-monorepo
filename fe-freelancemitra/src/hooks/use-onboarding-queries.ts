@@ -39,6 +39,7 @@ export function useSubmitOnboarding() {
     mutationFn: submitOnboarding,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.onboarding.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.basicInfo() });
     },
   });
 }
@@ -49,6 +50,7 @@ export function useUpdateOnboarding() {
     mutationFn: updateOnboarding,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.onboarding.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.basicInfo() });
     },
   });
 }

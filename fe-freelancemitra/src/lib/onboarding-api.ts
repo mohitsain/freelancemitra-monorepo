@@ -149,6 +149,7 @@ export interface OnboardingPayload {
     clientName: string;
     clientTitle: string;
     testimonial: string;
+    imageKey: string;
   }>;
   lastStepIndex?: number;
 }
@@ -178,20 +179,21 @@ function mapResponseToPayload(res: OnboardingResponse): OnboardingPayload {
     languagesSpoken: res.languages_spoken ?? "",
     portfolioLink: res.portfolio_link ?? "",
     portfolioSamples: (res.portfolio_samples ?? []).map((s) => {
-      const sample = s as { fileKey?: string; uploadedFiles?: Array<{ key: string; size: number }> };
+      const sample = s as {
+        fileKey?: string;
+        uploadedFiles?: Array<{ key: string; size: number }>;
+        uploaded_files?: Array<{ key: string; size: number }>;
+      };
       const fileKey = sample.fileKey ?? "";
-      const rawFiles = sample.uploadedFiles ?? [];
-      const uploadedFiles = (Array.isArray(rawFiles) ? rawFiles : []).map((item) =>
+      const rawFiles = sample.uploadedFiles ?? sample.uploaded_files ?? [];
+      const isUploadedFilesArray = Array.isArray(rawFiles);
+      const uploadedFiles = (isUploadedFilesArray ? rawFiles : []).map((item) =>
         typeof item === "object" && item && "key" in item
           ? { key: (item as { key?: string }).key ?? "", size: Number((item as { size?: number }).size) || 0 }
           : { key: "", size: 0 }
       );
-      const normalized =
-        uploadedFiles.length > 0
-          ? uploadedFiles
-          : fileKey
-            ? [{ key: fileKey, size: 0 }]
-            : [];
+      // Use uploadedFiles when present (including empty [] after removal); only fall back to legacy fileKey when uploadedFiles is missing
+      const normalized = isUploadedFilesArray ? uploadedFiles : (fileKey ? [{ key: fileKey, size: 0 }] : []);
       return {
         projectTitle: (s as { projectTitle?: string }).projectTitle ?? "",
         client: (s as { client?: string }).client ?? "",
@@ -239,11 +241,15 @@ function mapResponseToPayload(res: OnboardingResponse): OnboardingPayload {
     linkedinUrl: res.linkedin_url ?? "",
     otherSocialMedia: res.other_social_media ?? "",
     personalWebsite: res.personal_website ?? "",
-    testimonials: (res.testimonials ?? []).map((t) => ({
-      clientName: t.clientName ?? "",
-      clientTitle: t.clientTitle ?? "",
-      testimonial: t.testimonial ?? "",
-    })),
+    testimonials: (res.testimonials ?? []).map((t) => {
+      const item = t as { clientName?: string; clientTitle?: string; testimonial?: string; imageKey?: string };
+      return {
+        clientName: item.clientName ?? "",
+        clientTitle: item.clientTitle ?? "",
+        testimonial: item.testimonial ?? "",
+        imageKey: item.imageKey ?? "",
+      } as { clientName: string; clientTitle: string; testimonial: string; imageKey: string };
+    }),
     lastStepIndex: (res as { last_step_index?: number }).last_step_index ?? 0,
   };
 }

@@ -3,3 +3,23 @@
     padding: 0;
     box-sizing: border-box;
 }
+
+/* Text selection - light mode */
+::selection {
+    background-color: rgba(66, 153, 225, 0.35);
+    color: inherit;
+}
+::-moz-selection {
+    background-color: rgba(66, 153, 225, 0.35);
+    color: inherit;
+}
+
+/* Text selection - dark mode */
+.dark ::selection {
+    background-color: rgba(66, 153, 225, 0.5);
+    color: rgb(243, 244, 246);
+}
+.dark ::-moz-selection {
+    background-color: rgba(66, 153, 225, 0.5);
+    color: rgb(243, 244, 246);
+}

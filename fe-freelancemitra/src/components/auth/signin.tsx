@@ -48,6 +48,8 @@ export default function SignInCard() {
           maxW="400px"
         >
           <VStack gap={6}>
+            {/* Logo */}
+            <Box as="img" src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="96px" h="96px" objectFit="contain" />
             {/* Header */}
             <VStack gap={2}>
               <Heading size="lg" textAlign="center">

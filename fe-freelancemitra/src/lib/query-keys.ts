@@ -18,5 +18,6 @@ export const queryKeys = {
   },
   user: {
     me: () => ["user", "me"] as const,
+    basicInfo: () => ["user", "me", "basic-info"] as const,
   },
 } as const;

@@ -15,6 +15,10 @@ const poppins = Poppins({
 export const metadata: Metadata = {
     title: "Freelance Mitra",
     description: "Your freelance marketplace",
+    icons: {
+        icon: "/FreelanceMitraIcon.png",
+        apple: "/FreelanceMitraIcon.png",
+    },
 };
 
 export default function RootLayout({

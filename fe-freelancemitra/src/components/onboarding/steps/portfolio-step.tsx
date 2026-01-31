@@ -188,7 +188,7 @@ export default function PortfolioStep({ data, updateData }: Props) {
               </Box>
 
               <Box>
-                <Text {...labelStyles}>Portfolio Link (Optional)</Text>
+                <Text {...labelStyles}>Project Link</Text>
                 <Input
                   placeholder="Direct link to this project"
                   value={sample.portfolioLink}

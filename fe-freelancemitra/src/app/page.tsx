@@ -10,7 +10,6 @@ import {
   Text,
   VStack,
   HStack,
-  Heading,
   SimpleGrid,
   Icon,
   Spinner,
@@ -75,18 +74,6 @@ function DashboardContent() {
 
   return (
     <Container maxW="7xl" p={0}>
-      {/* Dashboard Header */}
-      <Box mb={8}>
-        <VStack align="start" gap={4}>
-          <Heading size="lg" color={textPrimary}>
-            Your Freelancing Dashboard
-          </Heading>
-          <Text color={textSecondary} fontSize="lg">
-            Monitor your freelancing performance and market trends with real-time insights
-          </Text>
-        </VStack>
-      </Box>
-
       {/* Get Started Section */}
       <Box mb={8}>
         <Text fontSize="xl" fontWeight="bold" color={textPrimary} mb={4}>

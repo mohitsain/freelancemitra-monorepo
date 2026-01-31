@@ -13,6 +13,7 @@ import {
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
 import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
+import SingleFileUpload from '@/components/ui/single-file-upload';
 
 interface Props {
   data: OnboardingData;
@@ -27,7 +28,8 @@ export default function TestimonialsStep({ data, updateData }: Props) {
     const newTestimonials = [...data.testimonials, {
       clientName: '',
       clientTitle: '',
-      testimonial: ''
+      testimonial: '',
+      imageKey: ''
     }];
     updateData({ testimonials: newTestimonials });
   };
@@ -40,6 +42,11 @@ export default function TestimonialsStep({ data, updateData }: Props) {
   const updateTestimonial = (index: number, field: string, value: string) => {
     const newTestimonials = [...data.testimonials];
     newTestimonials[index] = { ...newTestimonials[index], [field]: value };
+    updateData({ testimonials: newTestimonials });
+  };
+  const updateTestimonialImage = (index: number, key: string) => {
+    const newTestimonials = [...data.testimonials];
+    newTestimonials[index] = { ...newTestimonials[index], imageKey: key };
     updateData({ testimonials: newTestimonials });
   };
 
@@ -145,6 +152,19 @@ export default function TestimonialsStep({ data, updateData }: Props) {
                   py={2.5}
                   {...textareaBorderStyles}
                   _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+
+              <Box>
+                <Text {...labelStyles}>Client / Testimonial Image (Optional)</Text>
+                <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }} mb={2}>
+                  Upload a photo of the client or a relevant image (e.g. project screenshot). Max 10 MB.
+                </Text>
+                <SingleFileUpload
+                  file={testimonial.imageKey ? { key: testimonial.imageKey, size: 0 } : null}
+                  onFileChange={(entry) => updateTestimonialImage(index, entry?.key ?? '')}
+                  accept="image/*"
+                  category="profile"
                 />
               </Box>
             </Stack>

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { signOut, useSession } from 'next-auth/react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Box, 
@@ -12,11 +12,13 @@ import {
   Icon, 
   IconButton, 
   useDisclosure,
-  useBreakpointValue,
   Drawer,
   DrawerContent,
   DrawerHeader,
-  DrawerBody
+  DrawerBody,
+  Menu,
+  Portal,
+  Separator
 } from '@chakra-ui/react';
 import { 
   FaRocket, 
@@ -38,70 +40,229 @@ import {
   FaSignOutAlt,
   FaChevronLeft,
   FaCrown,
-  FaSearch,
-  FaFilter
+  FaUser
 } from 'react-icons/fa';
 import ThemeToggle from '@/components/common/theme-toggle';
 import { useColorMode } from '@/components/ui/color-mode';
+import { useBasicUserInfo } from '@/hooks/use-user-queries';
+
+/** Abbreviation from first letter of first name + first letter of last name. */
+function getInitials(name: string | null | undefined): string {
+  if (!name || !name.trim()) return 'U';
+  const parts = name.trim().split(/\s+/);
+  const firstName = parts[0];
+  const lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+  if (!lastName) return firstName.slice(0, 2).toUpperCase();
+  return (firstName[0] + lastName[0]).toUpperCase();
+}
+
+/** Profile picture from S3 or initials circle - reduced display size for avatars. */
+function UserAvatar(props: {
+  profilePictureUrl: string | null;
+  initials: string;
+  size: string | number;
+  accentBlue: string;
+}) {
+  const { profilePictureUrl, initials, size, accentBlue } = props;
+  const common = {
+    w: size,
+    h: size,
+    minW: size,
+    minH: size,
+    borderRadius: 'full',
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    overflow: 'hidden' as const,
+  };
+  if (profilePictureUrl) {
+    return (
+      <Box as="img" src={profilePictureUrl} alt="" {...common} objectFit="cover" loading="lazy" />
+    );
+  }
+  return (
+    <Box {...common} bg={accentBlue} color="white" fontSize="sm" fontWeight="semibold">
+      {initials}
+    </Box>
+  );
+}
+
+/** Shared account menu content: Profile, Plan, Account settings, Sign Out (same Sign Out icon as onboarding). */
+function AccountMenuContent(props: {
+  profilePictureUrl: string | null;
+  userInitials: string;
+  userName: string;
+  userRole: string;
+  textPrimary: string;
+  textSecondary: string;
+  accentBlue: string;
+}) {
+  const { profilePictureUrl, userInitials, userName, userRole, textPrimary, textSecondary, accentBlue } = props;
+  return (
+    <>
+      <VStack gap={0} align="stretch" py={4} px={4}>
+        <HStack gap={3} align="center">
+          <UserAvatar profilePictureUrl={profilePictureUrl} initials={userInitials} size="40px" accentBlue={accentBlue} />
+          <VStack gap={0} align="start" flex={1} minW={0}>
+            <Text fontSize="sm" fontWeight="semibold" color={textPrimary} noOfLines={1}>
+              {userName}
+            </Text>
+            <Text fontSize="xs" color={textSecondary}>{userRole}</Text>
+          </VStack>
+        </HStack>
+      </VStack>
+      <Separator />
+      <Box py={1}>
+        <Menu.Item value="profile" asChild>
+          <Link href="/">
+            <HStack gap={3} px={3} py={2}>
+              <Icon as={FaUser} color={textSecondary} fontSize="sm" />
+              <Text fontSize="sm" color={textPrimary}>Profile</Text>
+            </HStack>
+          </Link>
+        </Menu.Item>
+        <Menu.Item value="plan" asChild>
+          <Link href="/plan">
+            <HStack gap={3} px={3} py={2}>
+              <Icon as={FaCrown} color={textSecondary} fontSize="sm" />
+              <Text fontSize="sm" color={textPrimary}>Plan</Text>
+            </HStack>
+          </Link>
+        </Menu.Item>
+        <Menu.Item value="settings" asChild>
+          <Link href="/">
+            <HStack gap={3} px={3} py={2}>
+              <Icon as={FaCog} color={textSecondary} fontSize="sm" />
+              <Text fontSize="sm" color={textPrimary}>Account settings</Text>
+            </HStack>
+          </Link>
+        </Menu.Item>
+        <Menu.Item value="help" asChild>
+          <Link href="/help">
+            <HStack gap={3} px={3} py={2}>
+              <Icon as={FaQuestionCircle} color={textSecondary} fontSize="sm" />
+              <Text fontSize="sm" color={textPrimary}>Help</Text>
+            </HStack>
+          </Link>
+        </Menu.Item>
+      </Box>
+      <Separator />
+      <Box py={1}>
+        <Menu.Item
+          value="logout"
+          onClick={() => signOut({ callbackUrl: '/signin' })}
+          _highlighted={{ bg: 'red.50', color: 'red.600' }}
+        >
+          <HStack gap={3} px={3} py={2}>
+            <Icon as={FaSignOutAlt} color="inherit" fontSize="sm" />
+            <Text fontSize="sm">Sign Out</Text>
+          </HStack>
+        </Menu.Item>
+      </Box>
+    </>
+  );
+}
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
+const GENERAL_ITEMS = [
+  { name: 'Dashboard', icon: FaChartLine, route: '/', subItems: undefined },
+  { name: 'Portfolio Creation', icon: FaRocket, route: '/portfolio-creation', subItems: ['Templates', 'AI Builder', 'Customization'] },
+  { name: 'Proposal Building', icon: FaFileAlt, route: '/proposal-building', subItems: ['AI Generator', 'Templates', 'Analytics'] },
+  { name: 'Project Creation', icon: FaBriefcase, route: '/project-creation', subItems: ['Project Setup', 'Timeline', 'Milestones'] },
+  { name: 'Lead Management', icon: FaUserTie, route: '/lead-management', subItems: ['Lead Scoring', 'CRM', 'Follow-ups'] },
+  { name: 'Invoice Generation', icon: FaFileInvoiceDollar, route: '/invoice-generation', subItems: ['Create Invoice', 'Payment Tracking', 'Reports'] },
+  { name: 'Extensions', icon: FaTools, route: '/extensions', subItems: ['LinkedIn', 'Upwork', 'Behance'] },
+  { name: 'Integrations', icon: FaPlug, route: '/integrations', subItems: ['API Keys', 'Webhooks', 'Third-party Apps'] },
+] as const;
+
+const PREFETCH_ROUTES = [
+  '/',
+  '/portfolio-creation',
+  '/proposal-building',
+  '/project-creation',
+  '/lead-management',
+  '/invoice-generation',
+  '/extensions',
+  '/integrations',
+  '/help',
+  '/plan',
+];
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { colorMode } = useColorMode();
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
+
+  // Prefetch all sidebar routes on mount so first click is fast
+  useEffect(() => {
+    PREFETCH_ROUTES.forEach((href) => router.prefetch(href));
+  }, [router]);
   const { open, onOpen, onClose } = useDisclosure();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  // Theme-aware colors
-  const bgColor = colorMode === 'dark' ? 'gray.900' : 'gray.50';
-  const cardBg = colorMode === 'dark' ? 'gray.800' : 'white';
-  const borderColor = colorMode === 'dark' ? 'gray.700' : 'gray.200';
-  const textPrimary = colorMode === 'dark' ? 'white' : 'gray.800';
-  const textSecondary = colorMode === 'dark' ? 'gray.300' : 'gray.600';
-  const textTertiary = colorMode === 'dark' ? 'gray.400' : 'gray.500';
-  const accentBlue = 'blue.500';
+  const { data: basicUserInfo } = useBasicUserInfo();
+  const displayName = basicUserInfo?.name ?? session?.user?.name ?? 'User';
+  const displayEmail = basicUserInfo?.email ?? session?.user?.email ?? '';
+  const profilePictureUrl = basicUserInfo?.profilePictureUrl ?? null;
+  const userRole = basicUserInfo?.role ?? 'Freelancer';
+  const userInitials = useMemo(() => getInitials(displayName), [displayName]);
+  const userName = displayName;
+  const userEmail = displayEmail;
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+  const theme = useMemo(() => ({
+    bgColor: colorMode === 'dark' ? 'gray.900' : 'gray.50',
+    cardBg: colorMode === 'dark' ? 'gray.800' : 'white',
+    borderColor: colorMode === 'dark' ? 'gray.700' : 'gray.200',
+    textPrimary: colorMode === 'dark' ? 'white' : 'gray.800',
+    textSecondary: colorMode === 'dark' ? 'gray.300' : 'gray.600',
+    textTertiary: colorMode === 'dark' ? 'gray.400' : 'gray.500',
+    accentBlue: 'blue.500' as const,
+  }), [colorMode]);
 
-  const navigationItems = [
-    {
-      section: "General",
-      items: [
-        { name: "Dashboard", icon: FaChartLine, active: pathname === "/", subItems: undefined, route: "/" },
-        { name: "Portfolio Creation", icon: FaRocket, active: pathname === "/portfolio-creation", subItems: ["Templates", "AI Builder", "Customization"], route: "/portfolio-creation" },
-        { name: "Proposal Building", icon: FaFileAlt, active: pathname === "/proposal-building", subItems: ["AI Generator", "Templates", "Analytics"], route: "/proposal-building" },
-        { name: "Project Creation", icon: FaBriefcase, active: pathname === "/project-creation", subItems: ["Project Setup", "Timeline", "Milestones"], route: "/project-creation" },
-        { name: "Lead Management", icon: FaUserTie, active: pathname === "/lead-management", subItems: ["Lead Scoring", "CRM", "Follow-ups"], route: "/lead-management" },
-        { name: "Invoice Generation", icon: FaFileInvoiceDollar, active: pathname === "/invoice-generation", subItems: ["Create Invoice", "Payment Tracking", "Reports"], route: "/invoice-generation" },
-        { name: "Extensions", icon: FaTools, active: pathname === "/extensions", subItems: ["LinkedIn", "Upwork", "Behance"], route: "/extensions" },
-        { name: "Integrations", icon: FaPlug, active: pathname === "/integrations", subItems: ["API Keys", "Webhooks", "Third-party Apps"], route: "/integrations" }
-      ]
-    }
-  ];
+  const { bgColor, cardBg, borderColor, textPrimary, textSecondary, textTertiary, accentBlue } = theme;
 
-  const toggleItem = (itemName: string) => {
-    const newExpanded = new Set(expandedItems);
-    if (newExpanded.has(itemName)) {
-      newExpanded.delete(itemName);
-    } else {
-      newExpanded.add(itemName);
-    }
-    setExpandedItems(newExpanded);
-  };
+  const currentDate = useMemo(
+    () =>
+      new Date().toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }),
+    []
+  );
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
+  const navigationItems = useMemo(
+    () => [
+      {
+        section: 'General',
+        items: GENERAL_ITEMS.map((item) => ({
+          ...item,
+          active: pathname === item.route,
+        })),
+      },
+    ],
+    [pathname]
+  );
+
+  const toggleItem = useCallback((itemName: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemName)) next.delete(itemName);
+      else next.add(itemName);
+      return next;
+    });
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed((prev) => !prev);
+  }, []);
 
   return (
     <Box minH="100vh" bg={bgColor}>
@@ -135,7 +296,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </IconButton>
           
           <HStack gap={3}>
-            <Icon as={FaBriefcase} color={accentBlue} />
+            <Box as="img" src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="48px" h="48px" objectFit="contain" flexShrink={0} />
             <Text fontWeight="semibold" color={textPrimary}>FreelanceMitra</Text>
           </HStack>
         </HStack>
@@ -164,20 +325,54 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             
             <ThemeToggle />
             
-            <IconButton
-              variant="ghost"
-              aria-label="Sign Out"
-              onClick={() => signOut({ callbackUrl: '/signin' })}
-              _hover={{ bg: "red.50", color: "red.600" }}
-              transition="all 0.2s"
-            >
-              <Icon as={FaSignOutAlt} color={textSecondary} />
-            </IconButton>
+            <Menu.Root positioning={{ placement: 'bottom-end' }} closeOnSelect={false}>
+              <Menu.Trigger asChild>
+                <Box
+                  as="button"
+                  w="36px"
+                  h="36px"
+                  flexShrink={0}
+                  cursor="pointer"
+                  _hover={{ opacity: 0.9 }}
+                  _active={{ opacity: 0.85 }}
+                  transition="all 0.2s"
+                  aria-label="Open account menu"
+                  borderRadius="full"
+                  overflow="hidden"
+                >
+                  <UserAvatar profilePictureUrl={profilePictureUrl} initials={userInitials} size="36px" accentBlue={accentBlue} />
+                </Box>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content
+                    minW="280px"
+                    maxW="320px"
+                    py={0}
+                    borderRadius="lg"
+                    boxShadow="lg"
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    bg={cardBg}
+                  >
+                    <AccountMenuContent
+                      profilePictureUrl={profilePictureUrl}
+                      userInitials={userInitials}
+                      userName={userName}
+                      userRole={userRole}
+                      textPrimary={textPrimary}
+                      textSecondary={textSecondary}
+                      accentBlue={accentBlue}
+                    />
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
           </HStack>
         </HStack>
       </Box>
 
-      {/* Sidebar */}
+      {/* Sidebar - flex column so account section sticks to bottom */}
       <Box
         position="fixed"
         top="80px"
@@ -189,18 +384,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         borderColor={borderColor}
         transition="width 0.3s ease"
         zIndex={999}
-        display={{ base: "none", lg: "block" }}
+        display={{ base: "none", lg: "flex" }}
+        flexDirection="column"
       >
-        {/* Sidebar Header */}
-        <Box p={4} borderBottom="1px" borderColor={borderColor}>
-          <HStack justify="space-between" align="center">
+        {/* Sidebar Header - General label and collapse arrow aligned */}
+        <Box px={4} py={3} borderBottom="1px" borderColor={borderColor}>
+          <HStack justify={sidebarCollapsed ? "center" : "space-between"} align="center" gap={2}>
             {!sidebarCollapsed && (
-              <HStack gap={2} align="center">
-                <Icon as={FaChevronLeft} color={textSecondary} fontSize="12px" />
-                <Text fontSize="sm" fontWeight="semibold" color={textPrimary}>
-                  GENERAL
-                </Text>
-              </HStack>
+              <Text fontSize="xs" fontWeight="semibold" color={textTertiary} textTransform="uppercase">
+                GENERAL
+              </Text>
             )}
             <IconButton
               variant="ghost"
@@ -214,80 +407,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </HStack>
         </Box>
 
-        {/* Search and Filter Section */}
-        {!sidebarCollapsed && (
-          <Box p={4} borderBottom="1px" borderColor={borderColor}>
-            <VStack gap={3} align="stretch">
-              {/* Search Input */}
-              <Box position="relative">
-                <input
-                  type="text"
-                  placeholder="Search features..."
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    paddingLeft: '40px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    backgroundColor: 'white',
-                    color: '#1a202c'
-                  }}
-                />
-                <Icon
-                  as={FaSearch}
-                  position="absolute"
-                  left="12px"
-                  top="50%"
-                  transform="translateY(-50%)"
-                  color="gray.400"
-                  fontSize="14px"
-                />
-              </Box>
-              
-              {/* Filter Input */}
-              <Box position="relative">
-                <input
-                  type="text"
-                  placeholder="Filter by category"
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    paddingLeft: '40px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    backgroundColor: 'white',
-                    color: '#1a202c'
-                  }}
-                />
-                <Icon
-                  as={FaFilter}
-                  position="absolute"
-                  left="12px"
-                  top="50%"
-                  transform="translateY(-50%)"
-                  color="gray.400"
-                  fontSize="14px"
-                />
-              </Box>
-            </VStack>
-          </Box>
-        )}
-
         {/* Navigation Items */}
-        <Box flex={1} overflowY="auto" px={2}>
-          {navigationItems.map((section, sectionIndex) => (
-            <Box key={sectionIndex}>
-              {!sidebarCollapsed && (
+        <Box as="nav" flex={1} overflowY="auto" px={2} aria-label="Main">
+          {navigationItems.map((section) => (
+            <Box key={section.section}>
+              {!sidebarCollapsed && section.section !== 'General' && (
                 <Box px={4} py={2}>
                   <Text fontSize="xs" fontWeight="semibold" color={textTertiary} textTransform="uppercase">
                     {section.section}
                   </Text>
                 </Box>
               )}
-              {section.items.map((item, itemIndex) => (
-                <Box key={itemIndex}>
+              {section.items.map((item) => (
+                <Box key={item.route}>
                   {item.route ? (
                     <Link href={item.route} style={{ textDecoration: 'none' }}>
                       <HStack
@@ -302,7 +434,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         borderRightColor={item.active ? accentBlue : "transparent"}
                         transition="all 0.2s"
                       >
-                        <Icon as={item.icon} />
+                        <Box w="32px" flexShrink={0} display="flex" alignItems="center" justifyContent="center">
+                          <Icon as={item.icon} />
+                        </Box>
                         {!sidebarCollapsed && (
                           <>
                             <Text fontSize="sm" fontWeight={item.active ? "semibold" : "normal"}>
@@ -335,7 +469,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       transition="all 0.2s"
                       onClick={() => item.subItems ? toggleItem(item.name) : null}
                     >
-                      <Icon as={item.icon} />
+                      <Box w="32px" flexShrink={0} display="flex" alignItems="center" justifyContent="center">
+                        <Icon as={item.icon} />
+                      </Box>
                       {!sidebarCollapsed && (
                         <>
                           <Text fontSize="sm" fontWeight={item.active ? "semibold" : "normal"}>
@@ -356,9 +492,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   )}
                   {item.subItems && expandedItems.has(item.name) && !sidebarCollapsed && (
                     <VStack gap={0} align="stretch" pl={8}>
-                      {item.subItems.map((subItem, subIndex) => (
+                      {item.subItems.map((subItem) => (
                         <Box
-                          key={subIndex}
+                          key={`${item.route}-${subItem}`}
                           px={4}
                           py={2}
                           cursor="pointer"
@@ -378,8 +514,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           ))}
         </Box>
 
-        {/* Account Section */}
-        <Box mt="auto" borderTop="1px" borderColor={borderColor}>
+        {/* Account Section - same horizontal inset as nav (px={2}) so GENERAL and ACCOUNT align */}
+        <Box mt="auto" borderTop="1px" borderColor={borderColor} px={2}>
           {/* ACCOUNT Header */}
           {!sidebarCollapsed && (
             <Box px={4} py={2}>
@@ -389,8 +525,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Box>
           )}
           
-          {/* Help, Plans, Settings */}
+          {/* Plans, Settings, Help - same icon column width (32px) and padding as General items */}
           <VStack gap={0} align="stretch">
+            <Link href="/plan" style={{ textDecoration: 'none' }}>
+              <HStack
+                px={4}
+                py={3}
+                gap={3}
+                _hover={{ bg: "gray.100" }}
+                transition="all 0.2s"
+              >
+                <Box w="32px" flexShrink={0} display="flex" alignItems="center" justifyContent="center">
+                  <Icon as={FaCrown} color={textSecondary} />
+                </Box>
+                {!sidebarCollapsed && <Text fontSize="sm" color={textPrimary}>Plans</Text>}
+              </HStack>
+            </Link>
             <HStack
               px={4}
               py={3}
@@ -399,65 +549,83 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               _hover={{ bg: "gray.100" }}
               transition="all 0.2s"
             >
-              <Icon as={FaQuestionCircle} color={textSecondary} />
-              {!sidebarCollapsed && <Text fontSize="sm" color={textPrimary}>Help</Text>}
-            </HStack>
-            <HStack
-              px={4}
-              py={3}
-              gap={3}
-              cursor="pointer"
-              _hover={{ bg: "gray.100" }}
-              transition="all 0.2s"
-            >
-              <Icon as={FaCrown} color={textSecondary} />
-              {!sidebarCollapsed && <Text fontSize="sm" color={textPrimary}>Plans</Text>}
-            </HStack>
-            <HStack
-              px={4}
-              py={3}
-              gap={3}
-              cursor="pointer"
-              _hover={{ bg: "gray.100" }}
-              transition="all 0.2s"
-            >
-              <Icon as={FaCog} color={textSecondary} />
+              <Box w="32px" flexShrink={0} display="flex" alignItems="center" justifyContent="center">
+                <Icon as={FaCog} color={textSecondary} />
+              </Box>
               {!sidebarCollapsed && <Text fontSize="sm" color={textPrimary}>Settings</Text>}
             </HStack>
+            <Link href="/help" style={{ textDecoration: 'none' }}>
+              <HStack
+                px={4}
+                py={3}
+                gap={3}
+                _hover={{ bg: "gray.100" }}
+                transition="all 0.2s"
+              >
+                <Box w="32px" flexShrink={0} display="flex" alignItems="center" justifyContent="center">
+                  <Icon as={FaQuestionCircle} color={textSecondary} />
+                </Box>
+                {!sidebarCollapsed && <Text fontSize="sm" color={textPrimary}>Help</Text>}
+              </HStack>
+            </Link>
           </VStack>
 
-          {/* User Profile */}
-          <Box px={4} py={3} borderTop="1px" borderColor={borderColor}>
-            <HStack gap={3} align="center">
+          {/* User Profile - clickable, opens account menu (same as top bar) */}
+          <Menu.Root positioning={{ placement: 'right-start' }} closeOnSelect={false}>
+            <Menu.Trigger asChild>
               <Box
-                w="32px"
-                h="32px"
-                borderRadius="full"
-                bg="blue.500"
-                color="white"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="sm"
-                fontWeight="semibold"
+                as="button"
+                w="full"
+                px={4}
+                py={3}
+                borderTop="1px"
+                borderColor={borderColor}
+                textAlign="left"
+                cursor="pointer"
+                _hover={{ bg: 'gray.100' }}
+                transition="all 0.2s"
+                aria-label="Open account menu"
               >
-                RH
+                <HStack gap={3} align="center">
+                  <UserAvatar profilePictureUrl={profilePictureUrl} initials={userInitials} size="28px" accentBlue={accentBlue} />
+                  {!sidebarCollapsed && (
+                    <VStack gap={0} align="start" flex={1} minW={0}>
+                      <Text fontSize="sm" fontWeight="semibold" color={textPrimary} noOfLines={1}>
+                        {userName}
+                      </Text>
+                      <Text fontSize="xs" color={textSecondary} noOfLines={1}>
+                        {userEmail || userRole}
+                      </Text>
+                    </VStack>
+                  )}
+                </HStack>
               </Box>
-              {!sidebarCollapsed && (
-                <VStack gap={0} align="start" flex={1}>
-                  <Text fontSize="sm" fontWeight="semibold" color={textPrimary}>
-                    Ramil Hardy
-                  </Text>
-                  <Text fontSize="xs" color={textSecondary}>
-                    ramilhardy@gmail.com
-                  </Text>
-                </VStack>
-              )}
-              {!sidebarCollapsed && (
-                <Icon as={FaChevronDown} color={textSecondary} />
-              )}
-            </HStack>
-          </Box>
+            </Menu.Trigger>
+            <Portal>
+              <Menu.Positioner>
+                <Menu.Content
+                  minW="280px"
+                  maxW="320px"
+                  py={0}
+                  borderRadius="lg"
+                  boxShadow="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                  bg={cardBg}
+                >
+                  <AccountMenuContent
+                    profilePictureUrl={profilePictureUrl}
+                    userInitials={userInitials}
+                    userName={userName}
+                    userRole={userRole}
+                    textPrimary={textPrimary}
+                    textSecondary={textSecondary}
+                    accentBlue={accentBlue}
+                  />
+                </Menu.Content>
+              </Menu.Positioner>
+            </Portal>
+          </Menu.Root>
         </Box>
       </Box>
 
@@ -477,7 +645,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <DrawerHeader borderBottom="1px" borderColor={borderColor}>
             <HStack justify="space-between" align="center">
               <HStack gap={3}>
-                <Icon as={FaBriefcase} color={accentBlue} />
+                <Box as="img" src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="48px" h="48px" objectFit="contain" flexShrink={0} />
                 <Text fontWeight="semibold" color={textPrimary}>FreelanceMitra</Text>
               </HStack>
               <IconButton
@@ -492,77 +660,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </IconButton>
             </HStack>
           </DrawerHeader>
-          <DrawerBody>
-            {/* Mobile Search and Filter Section */}
-            <Box p={4} borderBottom="1px" borderColor={borderColor}>
-              <VStack gap={3} align="stretch">
-                {/* Search Input */}
-                <Box position="relative">
-                  <input
-                    type="text"
-                    placeholder="Search features..."
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      paddingLeft: '40px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white',
-                      color: '#1a202c'
-                    }}
-                  />
-                  <Icon
-                    as={FaSearch}
-                    position="absolute"
-                    left="12px"
-                    top="50%"
-                    transform="translateY(-50%)"
-                    color="gray.400"
-                    fontSize="14px"
-                  />
-                </Box>
-                
-                {/* Filter Input */}
-                <Box position="relative">
-                  <input
-                    type="text"
-                    placeholder="Filter by category"
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      paddingLeft: '40px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white',
-                      color: '#1a202c'
-                    }}
-                  />
-                  <Icon
-                    as={FaFilter}
-                    position="absolute"
-                    left="12px"
-                    top="50%"
-                    transform="translateY(-50%)"
-                    color="gray.400"
-                    fontSize="14px"
-                  />
-                </Box>
-              </VStack>
-            </Box>
-
+          <DrawerBody display="flex" flexDirection="column" minH={0}>
             {/* Mobile navigation content */}
-            <VStack gap={0} align="stretch">
-              {navigationItems.map((section, sectionIndex) => (
-                <Box key={sectionIndex}>
+            <VStack as="nav" gap={0} align="stretch" aria-label="Main" flex={1}>
+              {navigationItems.map((section) => (
+                <Box key={section.section}>
                   <Box px={4} py={2}>
                     <Text fontSize="xs" fontWeight="semibold" color={textTertiary} textTransform="uppercase">
                       {section.section}
                     </Text>
                   </Box>
-                  {section.items.map((item, itemIndex) => (
-                    <Box key={itemIndex}>
+                  {section.items.map((item) => (
+                    <Box key={item.route}>
                       {item.route ? (
                         <Link href={item.route} style={{ textDecoration: 'none' }}>
                           <HStack
@@ -618,9 +727,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       )}
                       {item.subItems && expandedItems.has(item.name) && (
                         <VStack gap={0} align="stretch" pl={8}>
-                          {item.subItems.map((subItem, subIndex) => (
+                          {item.subItems.map((subItem) => (
                             <Box
-                              key={subIndex}
+                              key={`${item.route}-${subItem}`}
                               px={4}
                               py={2}
                               cursor="pointer"
@@ -650,32 +759,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </Text>
               </Box>
               
-              {/* Help, Plans, Settings */}
+              {/* Plans, Settings, Help */}
               <VStack gap={0} align="stretch">
-                <HStack
-                  px={4}
-                  py={3}
-                  gap={3}
-                  cursor="pointer"
-                  _hover={{ bg: "gray.100" }}
-                  transition="all 0.2s"
-                  onClick={onClose}
-                >
-                  <Icon as={FaQuestionCircle} color={textSecondary} />
-                  <Text fontSize="sm" color={textPrimary}>Help</Text>
-                </HStack>
-                <HStack
-                  px={4}
-                  py={3}
-                  gap={3}
-                  cursor="pointer"
-                  _hover={{ bg: "gray.100" }}
-                  transition="all 0.2s"
-                  onClick={onClose}
-                >
-                  <Icon as={FaCrown} color={textSecondary} />
-                  <Text fontSize="sm" color={textPrimary}>Plans</Text>
-                </HStack>
+                <Link href="/plan" style={{ textDecoration: 'none' }} onClick={onClose}>
+                  <HStack
+                    px={4}
+                    py={3}
+                    gap={3}
+                    _hover={{ bg: "gray.100" }}
+                    transition="all 0.2s"
+                  >
+                    <Icon as={FaCrown} color={textSecondary} />
+                    <Text fontSize="sm" color={textPrimary}>Plans</Text>
+                  </HStack>
+                </Link>
                 <HStack
                   px={4}
                   py={3}
@@ -688,34 +785,32 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Icon as={FaCog} color={textSecondary} />
                   <Text fontSize="sm" color={textPrimary}>Settings</Text>
                 </HStack>
+                <Link href="/help" style={{ textDecoration: 'none' }} onClick={onClose}>
+                  <HStack
+                    px={4}
+                    py={3}
+                    gap={3}
+                    _hover={{ bg: "gray.100" }}
+                    transition="all 0.2s"
+                  >
+                    <Icon as={FaQuestionCircle} color={textSecondary} />
+                    <Text fontSize="sm" color={textPrimary}>Help</Text>
+                  </HStack>
+                </Link>
               </VStack>
 
-              {/* User Profile */}
+              {/* User Profile - stuck to bottom, no down arrow */}
               <Box px={4} py={3} borderTop="1px" borderColor={borderColor}>
                 <HStack gap={3} align="center">
-                  <Box
-                    w="32px"
-                    h="32px"
-                    borderRadius="full"
-                    bg="blue.500"
-                    color="white"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    fontSize="sm"
-                    fontWeight="semibold"
-                  >
-                    RH
-                  </Box>
+                  <UserAvatar profilePictureUrl={profilePictureUrl} initials={userInitials} size="28px" accentBlue={accentBlue} />
                   <VStack gap={0} align="start" flex={1}>
                     <Text fontSize="sm" fontWeight="semibold" color={textPrimary}>
-                      Ramil Hardy
+                      {userName}
                     </Text>
                     <Text fontSize="xs" color={textSecondary}>
-                      ramilhardy@gmail.com
+                      {userEmail || userRole}
                     </Text>
                   </VStack>
-                  <Icon as={FaChevronDown} color={textSecondary} />
                 </HStack>
               </Box>
             </Box>
