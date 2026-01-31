@@ -20,6 +20,7 @@ import { UnauthorizedError } from '@/lib/api-types';
 import { getOnboarding, getOnboardingStatus, submitOnboarding, updateOnboarding, type OnboardingPayload } from '@/lib/onboarding-api';
 import { getCountries, getPhoneCodeByCountryName } from '@/lib/locations-api';
 import { toastSuccess, toastError } from '@/components/ui/toaster';
+import { getStepValidationErrors, isStepValid, areAllStepsValid } from '@/lib/onboarding-validation';
 import ProfessionalOverviewStep from './steps/professional-overview-step';
 import PortfolioStep from './steps/portfolio-step';
 import ExperienceEducationStep from './steps/experience-education-step';
@@ -320,15 +321,18 @@ export default function OnboardingFlow() {
   };
 
   const nextStep = async () => {
-    if (currentStep < STEPS.length - 1) {
-      const nextIndex = currentStep + 1;
-      // Save data and resume step so user continues from here if they log in again
-      updateOnboarding({ ...toOnboardingPayload(data), lastStepIndex: nextIndex }).then(
-        () => {},
-        () => {}
-      );
-      setCurrentStep(nextIndex);
+    if (currentStep >= STEPS.length - 1) return;
+    const errors = getStepValidationErrors(data, currentStep);
+    if (errors.length > 0) {
+      toastError('Required fields missing', errors[0]);
+      return;
     }
+    const nextIndex = currentStep + 1;
+    updateOnboarding({ ...toOnboardingPayload(data), lastStepIndex: nextIndex }).then(
+      () => {},
+      () => {}
+    );
+    setCurrentStep(nextIndex);
   };
 
   const prevStep = () => {
@@ -355,6 +359,17 @@ export default function OnboardingFlow() {
   };
 
   const handleComplete = async () => {
+    if (!areAllStepsValid(data)) {
+      const stepIndex = Array.from({ length: STEPS.length }, (_, i) => i).find(
+        (i) => getStepValidationErrors(data, i).length > 0
+      );
+      const errors = stepIndex != null ? getStepValidationErrors(data, stepIndex) : [];
+      toastError(
+        'Complete all required fields',
+        errors[0] ?? `Please fill all mandatory fields in Step ${(stepIndex ?? 0) + 1} and earlier.`
+      );
+      return;
+    }
     setSubmitState('submitting');
     try {
       await submitOnboarding(toOnboardingPayload(data));
@@ -372,11 +387,6 @@ export default function OnboardingFlow() {
       }
       toastError("Could not save profile", err instanceof Error ? err.message : "Please try again.");
     }
-  };
-
-  const handleSkipOnboarding = () => {
-    // Redirect to home page
-    router.push('/');
   };
 
   // Single loader: while session is loading, or while checking onboarding status (so we never flash the form when already onboarded)
@@ -411,6 +421,8 @@ export default function OnboardingFlow() {
 
   const CurrentStepComponent = STEPS[currentStep].component;
   const progressPercentage = Math.round(((currentStep + 1) / STEPS.length) * 100);
+  const isCurrentStepValid = isStepValid(data, currentStep);
+  const canComplete = areAllStepsValid(data);
 
   const navBarHeight = 72;
   const navBarMinHeightMobile = 64;
@@ -418,7 +430,7 @@ export default function OnboardingFlow() {
   return (
     <Box w="full" minH="100vh" px={{ base: 3, md: 6 }} pt={4} pb={{ base: `${navBarMinHeightMobile + 24}px`, md: `${navBarHeight + 16}px` }} bg={cardBg}>
       <Stack direction="column" gap={3} align="stretch" maxW="1400px" mx="auto">
-        {/* Sticky header: Step left, theme + Skip + Sign Out right */}
+        {/* Sticky header: Step left, theme + Sign Out right */}
         <Box
           position="sticky"
           top={0}
@@ -466,18 +478,6 @@ export default function OnboardingFlow() {
                 <ColorModeButton size="sm" variant="outline" aria-label="Toggle theme" />
               </Box>
             </Tooltip>
-            <Tooltip content="Skip Onboarding">
-              <IconButton
-                aria-label="Skip Onboarding"
-                variant="outline"
-                colorScheme="blue"
-                size="sm"
-                onClick={handleSkipOnboarding}
-                fontSize="lg"
-              >
-                ⏭️
-              </IconButton>
-            </Tooltip>
             <Tooltip content="Sign Out">
               <IconButton
                 aria-label="Sign Out"
@@ -493,12 +493,11 @@ export default function OnboardingFlow() {
           </HStack>
             </HStack>
 
-            {/* Progress Bar: segmented by steps, step no in circle at current segment */}
+            {/* Progress Bar: segmented by steps, step no in circle at current segment; click segment to go to step */}
             <Box
               w="full"
               position="relative"
               h="40px"
-              cursor="pointer"
               title={`Step ${currentStep + 1} of ${STEPS.length}`}
             >
               <HStack w="full" h="20px" gap="2px" align="stretch" position="absolute" top="50%" left={0} right={0} transform="translateY(-50%)">
@@ -513,6 +512,11 @@ export default function OnboardingFlow() {
                     bg="gray.100"
                     _dark={{ bg: 'gray.700' }}
                     position="relative"
+                    cursor="pointer"
+                    title={`Step ${i + 1}: ${STEPS[i].title}`}
+                    onClick={() => setCurrentStep(i)}
+                    _hover={{ opacity: 0.9 }}
+                    transition="opacity 0.2s"
                   >
                     <Box
                       w={i <= currentStep ? '100%' : '0%'}
@@ -610,13 +614,12 @@ export default function OnboardingFlow() {
         justifyContent="center"
         zIndex={10}
       >
+        <Stack direction="column" align="stretch" w="full" maxW="1400px" px={{ base: 3, md: 6 }} gap={1}>
         <HStack
           justify="space-between"
           align="center"
           alignContent={{ base: "center", md: "stretch" }}
           w="full"
-          maxW="1400px"
-          px={{ base: 3, md: 6 }}
           gap={{ base: 2, md: 3 }}
           flexWrap={{ base: "wrap", md: "nowrap" }}
           flexDirection="row"
@@ -681,13 +684,15 @@ export default function OnboardingFlow() {
                 borderRadius="lg"
                 flexShrink={0}
                 bg="linear-gradient(90deg, #48BB78, #38A169)"
-                isLoading={submitState === 'submitting'}
+                loading={submitState === 'submitting'}
                 loadingText="Saving…"
-                _hover={{
+                disabled={!canComplete}
+                _hover={canComplete ? {
                   transform: 'translateY(-2px)',
                   boxShadow: '0 10px 25px -5px rgba(72, 187, 120, 0.4)',
                   bg: 'linear-gradient(90deg, #38A169, #2F855A)'
-                }}
+                } : undefined}
+                _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
                 transition="all 0.2s"
               >
                 🎉 Complete →
@@ -701,10 +706,12 @@ export default function OnboardingFlow() {
                 borderRadius="lg"
                 flexShrink={0}
                 bg="gradient-to-r from-blue.500 to-purple.600"
-                _hover={{
+                disabled={!isCurrentStepValid}
+                _hover={isCurrentStepValid ? {
                   transform: 'translateY(-2px)',
                   boxShadow: '0 10px 25px -5px rgba(66, 153, 225, 0.4)'
-                }}
+                } : undefined}
+                _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
                 transition="all 0.2s"
               >
                 Next →
@@ -712,6 +719,7 @@ export default function OnboardingFlow() {
             )}
           </HStack>
         </HStack>
+        </Stack>
       </Box>
       
       {/* CSS for shimmer animation */}

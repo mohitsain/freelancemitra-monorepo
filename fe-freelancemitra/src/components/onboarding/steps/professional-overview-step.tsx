@@ -13,7 +13,7 @@ import { OnboardingData } from '../onboarding-flow';
 import SkillsDropdown from '@/components/ui/skills-dropdown';
 import SpecializationsDropdown from '@/components/ui/specializations-dropdown';
 import LanguagesDropdown from '@/components/ui/languages-dropdown';
-import { inputBorderStyles, textareaBorderStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, textareaBorderStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
 interface Props {
   data: OnboardingData;
@@ -59,8 +59,8 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
     <Stack direction="column" gap={6} align="stretch">
       {/* Headline Section */}
       <Box {...cardStyles}>
-        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
-          Professional Headline
+        <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Professional Headline <Text {...requiredAsteriskStyles}>*</Text>
         </Text>
         <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} mb={4}>
           A concise, catchy phrase describing what you do and your main benefit
@@ -85,7 +85,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
         </Text>
         <Stack direction="column" gap={5} align="stretch">
           <Box>
-            <Text {...labelStyles}>Short Summary (2-3 sentences) *</Text>
+            <Text {...labelStyles}>Short Summary (2-3 sentences) <Text {...requiredAsteriskStyles}>*</Text></Text>
             <Textarea
               placeholder="Brief introduction of yourself and your core skills..."
               value={data.shortSummary}
@@ -98,7 +98,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
             />
           </Box>
           <Box>
-            <Text {...labelStyles}>Detailed Description *</Text>
+            <Text {...labelStyles}>Detailed Description (Optional)</Text>
             <Textarea
               placeholder="Expand on your experience, unique selling propositions, work philosophy, and what kind of projects you enjoy..."
               value={data.detailedDescription}
@@ -118,10 +118,10 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
         <HStack gap={6} align="stretch" flexWrap="wrap">
           <Box flex={{ base: '1 1 100%', md: 1 }} minW={{ base: '100%', md: '280px' }}>
             <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
-              Areas of Specialization
+              Areas of Specialization <Text {...requiredAsteriskStyles}>*</Text>
             </Text>
             <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} mb={3}>
-              More specific expertise within your field
+              Add at least one (required)
             </Text>
             <SpecializationsDropdown
               selectedSpecializations={data.areasOfSpecialization}
@@ -133,10 +133,10 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
           </Box>
           <Box flex={{ base: '1 1 100%', md: 1 }} minW={{ base: '100%', md: '280px' }}>
             <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
-              Key Skills
+              Key Skills <Text {...requiredAsteriskStyles}>*</Text>
             </Text>
             <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} mb={3}>
-              List your most relevant technical and soft skills
+              Add at least one (required)
             </Text>
             <SkillsDropdown
               selectedSkills={data.keySkills}
@@ -157,7 +157,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
         <Stack direction="column" gap={5} align="stretch">
           <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
             <Box flex={1} minW={0}>
-              <Text {...labelStyles}>Years of Experience *</Text>
+              <Text {...labelStyles}>Years of Experience (Optional)</Text>
               <Input
                 type="number"
                 placeholder="5"

@@ -371,7 +371,7 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
                 </Badge>
               </HStack>
               <Text fontSize="sm" color="gray.600">
-                {work.jobTitle || 'Job title not specified'} • {work.startDate || 'Start date not specified'} - {work.endDate || 'End date not specified'}
+                {work.jobTitle || 'Job title not specified'} • {work.startDate || 'Start date not specified'} - {work.endDate === 'Present' ? 'Till date' : (work.endDate || 'End date not specified')}
               </Text>
               {work.responsibilities && (
                 <Text fontSize="sm" mt={2}>

@@ -13,7 +13,7 @@ import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
 import SkillsDropdown from '@/components/ui/skills-dropdown';
 import MultiFileUpload from '@/components/ui/multi-file-upload';
-import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
 interface Props {
   data: OnboardingData;
@@ -89,10 +89,10 @@ export default function PortfolioStep({ data, updateData }: Props) {
         <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
             <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>
-              Work Samples
+              Work Samples <Text {...requiredAsteriskStyles}>*</Text>
             </Text>
             <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-              Showcase your best work with detailed project information
+              Add at least one with project title and description (required if no portfolio link above)
             </Text>
           </Box>
           <Button
@@ -139,7 +139,7 @@ export default function PortfolioStep({ data, updateData }: Props) {
             <Stack direction="column" gap={5} align="stretch">
               <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
                 <Box flex={1} minW={0}>
-                  <Text {...labelStyles}>Project Title *</Text>
+                  <Text {...labelStyles}>Project Title <Text {...requiredAsteriskStyles}>*</Text></Text>
                   <Input
                     placeholder="e.g., E-commerce Website Redesign"
                     value={sample.projectTitle}
@@ -163,7 +163,7 @@ export default function PortfolioStep({ data, updateData }: Props) {
               </HStack>
 
               <Box>
-                <Text {...labelStyles}>Project Description *</Text>
+                <Text {...labelStyles}>Project Description <Text {...requiredAsteriskStyles}>*</Text></Text>
                 <Textarea
                   placeholder="What was the project about? What was your role? What was the outcome/impact?"
                   value={sample.description}

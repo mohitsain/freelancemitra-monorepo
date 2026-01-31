@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 import SingleFileUpload from '@/components/ui/single-file-upload';
 
 interface Props {
@@ -88,10 +88,10 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
         <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
             <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>
-              Work History
+              Work History <Text {...requiredAsteriskStyles}>*</Text>
             </Text>
             <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-              Add your relevant work experience to showcase your expertise
+              Add at least one position with company, job title, start date, end date (or Till date), and key responsibilities
             </Text>
           </Box>
           <Button onClick={addWorkHistory} colorScheme="blue" {...addSectionButtonStyles}>
@@ -121,7 +121,7 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
             <Stack direction="column" gap={5}>
               <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
                 <Box flex={1} minW={0}>
-                  <Text {...labelStyles}>Company/Client Name</Text>
+                  <Text {...labelStyles}>Company/Client Name <Text {...requiredAsteriskStyles}>*</Text></Text>
                   <Input
                     placeholder="Company or client name"
                     value={work.company}
@@ -132,7 +132,7 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
                   />
                 </Box>
                 <Box flex={1} minW={0}>
-                  <Text {...labelStyles}>Job Title/Role</Text>
+                  <Text {...labelStyles}>Job Title/Role <Text {...requiredAsteriskStyles}>*</Text></Text>
                   <Input
                     placeholder="Job title or role"
                     value={work.jobTitle}
@@ -145,7 +145,7 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
               </HStack>
               <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
                 <Box flex={1} minW={0}>
-                  <Text {...labelStyles}>Start Date</Text>
+                  <Text {...labelStyles}>Start Date <Text {...requiredAsteriskStyles}>*</Text></Text>
                   <Input
                     type="date"
                     value={work.startDate}
@@ -156,19 +156,43 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
                   />
                 </Box>
                 <Box flex={1} minW={0}>
-                  <Text {...labelStyles}>End Date</Text>
-                  <Input
-                    type="date"
-                    value={work.endDate}
-                    onChange={(e) => updateWorkHistory(index, 'endDate', e.target.value)}
-                    {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-                  />
+                  <Text {...labelStyles}>End Date <Text {...requiredAsteriskStyles}>*</Text></Text>
+                  <HStack gap={3} align="center" flexWrap="wrap">
+                    <Input
+                      type="date"
+                      value={work.endDate === 'Present' ? '' : work.endDate}
+                      onChange={(e) => updateWorkHistory(index, 'endDate', e.target.value)}
+                      {...inputSizes}
+                      {...inputBorderStyles}
+                      _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                      disabled={work.endDate === 'Present'}
+                      flex={{ base: '1 1 100%', sm: '1' }}
+                      minW={0}
+                    />
+                    <Box
+                      as="label"
+                      display="flex"
+                      alignItems="center"
+                      gap={2}
+                      cursor="pointer"
+                      whiteSpace="nowrap"
+                      fontSize="sm"
+                      color="gray.700"
+                      _dark={{ color: 'gray.300' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={work.endDate === 'Present'}
+                        onChange={(e) => updateWorkHistory(index, 'endDate', e.target.checked ? 'Present' : '')}
+                        style={{ width: 16, height: 16, cursor: 'pointer' }}
+                      />
+                      Till date
+                    </Box>
+                  </HStack>
                 </Box>
               </HStack>
               <Box>
-                <Text {...labelStyles}>Key Responsibilities & Achievements</Text>
+                <Text {...labelStyles}>Key Responsibilities & Achievements <Text {...requiredAsteriskStyles}>*</Text></Text>
                 <Textarea
                   placeholder="Describe your key responsibilities and achievements..."
                   value={work.responsibilities}
@@ -216,11 +240,9 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
               <Text fontWeight="medium" color="gray.700" _dark={{ color: 'gray.300' }}>
                 Education {index + 1}
               </Text>
-              {data.education.length > 1 && (
-                <Button aria-label="Remove education" size="sm" variant="ghost" colorScheme="red" onClick={() => removeEducation(index)}>
-                  ✕
-                </Button>
-              )}
+              <Button aria-label="Remove education" size="sm" variant="ghost" colorScheme="red" onClick={() => removeEducation(index)}>
+                ✕
+              </Button>
             </HStack>
             <Stack direction="column" gap={5}>
               <Box>

@@ -129,6 +129,14 @@ export const labelStyles = {
   _dark: { color: "gray.400" },
 };
 
+/** Required field asterisk - use as <Text as="span" {...requiredAsteriskStyles}>*</Text> after label text */
+export const requiredAsteriskStyles = {
+  as: "span" as const,
+  color: "red.500",
+  _dark: { color: "red.400" },
+  ml: 0.5,
+};
+
 /** Input/textarea size and padding - consistent with step 1 */
 export const inputSizes = {
   size: "md" as const,

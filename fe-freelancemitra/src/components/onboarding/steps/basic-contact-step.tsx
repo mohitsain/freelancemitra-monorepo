@@ -31,7 +31,7 @@ function isS3Key(value: string): boolean {
   return value.startsWith('users/') || value.startsWith('onboarding/');
 }
 
-import { inputBorderStyles, cardStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, cardStyles, labelStyles, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
 export default function BasicContactStep({ data, updateData }: Props) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -205,8 +205,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
           <Stack gap={5}>
             <HStack gap={4} w="full" align="flex-start" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
               <Box flex={{ base: '1 1 100%', sm: '1' }} minW={0}>
-                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                  First Name *
+                <Text {...labelStyles}>
+                  First Name <Text {...requiredAsteriskStyles}>*</Text>
                 </Text>
                 <Input
                   placeholder="Your first name"
@@ -221,8 +221,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                 />
               </Box>
               <Box flex={{ base: '1 1 100%', sm: '1' }} minW={0}>
-                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                  Last Name *
+                <Text {...labelStyles}>
+                  Last Name <Text {...requiredAsteriskStyles}>*</Text>
                 </Text>
                 <Input
                   placeholder="Your last name"
@@ -238,8 +238,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
               </Box>
             </HStack>
             <Box>
-              <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                Professional Title/Role *
+              <Text {...labelStyles}>
+                Professional Title/Role <Text {...requiredAsteriskStyles}>*</Text>
               </Text>
               <RoleDropdown
                 value={data.professionalTitle}
@@ -250,8 +250,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
             </Box>
             <HStack gap={3} w="full" align="flex-end" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
               <Box minW={{ base: '100%', sm: '140px' }} w={{ sm: '160px' }}>
-                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                  Phone (Optional)
+                <Text {...labelStyles}>
+                  Country code <Text {...requiredAsteriskStyles}>*</Text>
                 </Text>
                 <PhoneCodeDropdown
                   value={data.countryPhoneCode}
@@ -261,8 +261,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                 />
               </Box>
               <Box flex={1} minW={0}>
-                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} visibility="hidden">
-                  Number
+                <Text {...labelStyles}>
+                  Phone number <Text {...requiredAsteriskStyles}>*</Text>
                 </Text>
                 <Input
                   type="tel"
@@ -318,11 +318,11 @@ export default function BasicContactStep({ data, updateData }: Props) {
                 />
               </Box>
               <Box>
-                <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
-                  City, postal code, country & state
-                </Text>
                 <HStack gap={4} flexWrap="wrap" align="flex-end">
                   <Box flex="1 1 120px" minW="120px">
+                    <Text {...labelStyles}>
+                      City <Text {...requiredAsteriskStyles}>*</Text>
+                    </Text>
                     <Input
                       placeholder="City"
                       value={data.city}
@@ -335,6 +335,7 @@ export default function BasicContactStep({ data, updateData }: Props) {
                     />
                   </Box>
                   <Box flex="1 1 100px" minW="100px">
+                    <Text {...labelStyles}>Postal code</Text>
                     <Input
                       placeholder="Postal code"
                       value={data.postalCode}
@@ -347,6 +348,9 @@ export default function BasicContactStep({ data, updateData }: Props) {
                     />
                   </Box>
                   <Box flex="1 1 140px" minW="140px">
+                    <Text {...labelStyles}>
+                      Country <Text {...requiredAsteriskStyles}>*</Text>
+                    </Text>
                     <CountryDropdown
                       value={data.country}
                       onChange={(value) => updateData({ country: value })}
@@ -359,6 +363,7 @@ export default function BasicContactStep({ data, updateData }: Props) {
                     />
                   </Box>
                   <Box flex="1 1 140px" minW="140px">
+                    <Text {...labelStyles}>State / Province</Text>
                     <StateDropdown
                       countryCode={selectedCountryCode}
                       value={data.state}

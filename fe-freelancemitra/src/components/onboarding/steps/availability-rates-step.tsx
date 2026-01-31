@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 import CurrencyDropdown from '@/components/ui/currency-dropdown';
 
 interface Props {
@@ -136,7 +136,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
               />
             </Box>
             <Box flex={1} minW={0}>
-              <Text {...labelStyles}>Start Date Availability</Text>
+              <Text {...labelStyles}>Start Date Availability <Text {...requiredAsteriskStyles}>*</Text></Text>
               <Input
                 type="date"
                 value={data.startDate}
@@ -162,7 +162,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
         <Stack direction="column" gap={5} align="stretch">
           <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
             <Box flex={1} minW={0}>
-              <Text {...labelStyles}>Currency</Text>
+              <Text {...labelStyles}>Currency <Text {...requiredAsteriskStyles}>*</Text></Text>
               <CurrencyDropdown
                 value={data.currency}
                 onChange={(value) => updateData({ currency: value })}
@@ -171,7 +171,9 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
               />
             </Box>
             <Box flex={1} minW={0}>
-              <Text {...labelStyles}>Hourly Rate</Text>
+              <Text {...labelStyles}>
+                Hourly Rate {(data.availability === 'full-time' || data.availability === 'part-time') && <Text {...requiredAsteriskStyles}>*</Text>}
+              </Text>
               <Input
                 type="number"
                 placeholder="0.00"
@@ -187,7 +189,14 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
           </HStack>
 
           <Box>
-            <Text {...labelStyles}>Project-based Rate (Optional)</Text>
+            <Text {...labelStyles}>
+              Project-based Rate {data.availability === 'project-based' && <Text {...requiredAsteriskStyles}>*</Text>}
+            </Text>
+            {data.availability === 'project-based' && (
+              <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }} mb={2}>
+                At least one of project-based or retainer rate required
+              </Text>
+            )}
             <Input
               placeholder="e.g., Starting from $500 or Custom quotes"
               value={data.projectBasedRate}
@@ -199,7 +208,9 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
           </Box>
 
           <Box>
-            <Text {...labelStyles}>Retainer Rate (Optional)</Text>
+            <Text {...labelStyles}>
+              Retainer Rate {data.availability === 'project-based' && <Text {...requiredAsteriskStyles}>*</Text>}
+            </Text>
             <Input
               placeholder="e.g., $2000/month for 20 hours"
               value={data.retainerRate}
