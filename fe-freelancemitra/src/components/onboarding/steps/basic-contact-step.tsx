@@ -31,7 +31,7 @@ function isS3Key(value: string): boolean {
   return value.startsWith('users/') || value.startsWith('onboarding/');
 }
 
-import { inputBorderStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, cardStyles } from '@/lib/onboarding-form-styles';
 
 export default function BasicContactStep({ data, updateData }: Props) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -90,204 +90,174 @@ export default function BasicContactStep({ data, updateData }: Props) {
   };
 
   return (
-    <Stack direction="column" gap={8} align="stretch">
-      {/* Personal Information Section (including Profile Picture) */}
-      <Box
-        p={8}
-        bg="white"
-        borderRadius="xl"
-        border="1px"
-        borderColor="gray.100"
-        boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-        _dark={{
-          bg: 'gray.800',
-          borderColor: 'gray.700',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
-        }}
+    <Stack direction="column" gap={6} align="stretch">
+      {/* Two cards: left = Profile Picture, right = Contact details */}
+      <HStack
+        gap={6}
+        align="stretch"
+        flexDirection={{ base: 'column', md: 'row' }}
+        w="full"
       >
-        <HStack gap={3} mb={6}>
-          <Box
-            w={12}
-            h={12}
-            borderRadius="full"
-            bg="green.500"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Text fontSize="xl" color="white" fontWeight="bold">
-              👤
-            </Text>
-          </Box>
-          <Box>
-            <Heading size="md" color="gray.800" _dark={{ color: 'white' }}>
-              Personal Information
-            </Heading>
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              Basic details and profile picture that will be displayed on your profile
-            </Text>
-          </Box>
-        </HStack>
-        
-        <Stack direction="column" gap={6} align="stretch">
-          {/* Profile Picture Section */}
-          <Box>
-            <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }}>
-              Profile Picture
-            </Text>
-            <HStack gap={6} align="start">
-              <Box
-                w="80px"
-                h="80px"
-                borderRadius="full"
-                bg="gradient-to-br from-blue.100 to-purple.100"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                overflow="hidden"
-                border="3px"
-                borderColor="white"
-                boxShadow="0 8px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04)"
-                _dark={{
-                  bg: 'gradient-to-br from-blue.900 to-purple.900',
-                  borderColor: 'gray.700'
-                }}
-              >
-                {profilePictureSrc ? (
-                  <img
-                    src={profilePictureSrc}
-                    alt={`${data.firstName} ${data.lastName}` || 'User'}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
-                ) : (
-                  <Text fontSize="3xl" color="gray.500" _dark={{ color: 'gray.400' }}>
-                    👤
-                  </Text>
-                )}
-              </Box>
-              <Stack direction="column" gap={3} flex={1}>
-                <Button
-                  variant="solid"
-                  colorScheme="blue"
-                  size="lg"
-                  px={6}
-                  py={3}
-                  borderRadius="lg"
-                  disabled={uploading}
-                  onClick={() => document.getElementById('profile-upload')?.click()}
-                  _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 20px -5px rgba(0, 0, 0, 0.2)'
+        {/* Left card: Profile Picture */}
+        <Box flex={{ base: 'none', md: '0 0 280px' }} {...cardStyles}>
+          <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+            Profile Picture
+          </Text>
+          <Stack align="center" gap={4}>
+            <Box
+              w="100px"
+              h="100px"
+              borderRadius="full"
+              bg="gradient-to-br from-blue.100 to-purple.100"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              overflow="hidden"
+              border="3px"
+              borderColor="white"
+              boxShadow="0 8px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04)"
+              _dark={{
+                bg: 'gradient-to-br from-blue.900 to-purple.900',
+                borderColor: 'gray.700'
+              }}
+            >
+              {profilePictureSrc ? (
+                <img
+                  src={profilePictureSrc}
+                  alt={`${data.firstName} ${data.lastName}` || 'User'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
                   }}
-                  transition="all 0.2s"
-                >
-                  {uploading ? (
-                    <HStack gap={2}><Spinner size="sm" /> Uploading…</HStack>
-                  ) : (
-                    '📁 Upload Photo'
-                  )}
-                </Button>
-                <input
-                  id="profile-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  style={{ display: 'none' }}
                 />
-              </Stack>
-            </HStack>
-          </Box>
-
-          {/* First Name and Last Name */}
-          <HStack gap={6} w="full">
-            <Box flex={1}>
-              <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }}>
-                First Name *
-              </Text>
-              <Input
-                placeholder="Your first name"
-                value={data.firstName}
-                onChange={(e) => updateData({ firstName: e.target.value })}
-                required
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
+              ) : (
+                <Text fontSize="4xl" color="gray.500" _dark={{ color: 'gray.400' }}>
+                  👤
+                </Text>
+              )}
             </Box>
-            <Box flex={1}>
-              <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }}>
-                Last Name *
-              </Text>
-              <Input
-                placeholder="Your last name"
-                value={data.lastName}
-                onChange={(e) => updateData({ lastName: e.target.value })}
-                required
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
-            </Box>
-          </HStack>
-
-          {/* Professional Title */}
-          <Box>
-            <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }}>
-              Professional Title/Role *
-            </Text>
-            <RoleDropdown
-              value={data.professionalTitle}
-              onChange={(value) => updateData({ professionalTitle: value })}
-              placeholder="Select your professional role"
-              size="lg"
+            <Button
+              variant="solid"
+              colorScheme="blue"
+              size="md"
+              w="full"
+              py={3}
+              borderRadius="lg"
+              disabled={uploading}
+              onClick={() => document.getElementById('profile-upload')?.click()}
+              _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 20px -5px rgba(0, 0, 0, 0.2)'
+              }}
+              transition="all 0.2s"
+            >
+              {uploading ? (
+                <HStack gap={2}><Spinner size="sm" /> Uploading…</HStack>
+              ) : (
+                '📁 Upload Photo'
+              )}
+            </Button>
+            <input
+              id="profile-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
             />
-          </Box>
+          </Stack>
+        </Box>
 
-          {/* Phone: country code + number */}
-          <HStack gap={4} w="full" align="flex-end">
-            <Box minW="140px" w="180px">
-              <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }}>
-                Phone (Optional)
+        {/* Right card: Name, role, phone */}
+        <Box flex={{ base: '1 1 auto', md: '1' }} minW={0} {...cardStyles}>
+          <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+            Contact details
+          </Text>
+          <Stack gap={5}>
+            <HStack gap={4} w="full" align="flex-start" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
+              <Box flex={{ base: '1 1 100%', sm: '1' }} minW={0}>
+                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                  First Name *
+                </Text>
+                <Input
+                  placeholder="Your first name"
+                  value={data.firstName}
+                  onChange={(e) => updateData({ firstName: e.target.value })}
+                  required
+                  size="md"
+                  px={4}
+                  py={2.5}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+              <Box flex={{ base: '1 1 100%', sm: '1' }} minW={0}>
+                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                  Last Name *
+                </Text>
+                <Input
+                  placeholder="Your last name"
+                  value={data.lastName}
+                  onChange={(e) => updateData({ lastName: e.target.value })}
+                  required
+                  size="md"
+                  px={4}
+                  py={2.5}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+            </HStack>
+            <Box>
+              <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                Professional Title/Role *
               </Text>
-              <PhoneCodeDropdown
-                value={data.countryPhoneCode}
-                onChange={(value) => updateData({ countryPhoneCode: value })}
-                placeholder="Code"
-                size="lg"
+              <RoleDropdown
+                value={data.professionalTitle}
+                onChange={(value) => updateData({ professionalTitle: value })}
+                placeholder="Select your professional role"
+                size="md"
               />
             </Box>
-            <Box flex={1}>
-              <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }} visibility="hidden">
-                Number
-              </Text>
-              <Input
-                type="tel"
-                placeholder="Phone number"
-                value={data.phoneNumber}
-                onChange={(e) => updateData({ phoneNumber: e.target.value })}
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
-            </Box>
-          </HStack>
+            <HStack gap={3} w="full" align="flex-end" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
+              <Box minW={{ base: '100%', sm: '140px' }} w={{ sm: '160px' }}>
+                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                  Phone (Optional)
+                </Text>
+                <PhoneCodeDropdown
+                  value={data.countryPhoneCode}
+                  onChange={(value) => updateData({ countryPhoneCode: value })}
+                  placeholder="Code"
+                  size="md"
+                />
+              </Box>
+              <Box flex={1} minW={0}>
+                <Text fontWeight="medium" mb={2} fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} visibility="hidden">
+                  Number
+                </Text>
+                <Input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={data.phoneNumber}
+                  onChange={(e) => updateData({ phoneNumber: e.target.value })}
+                  size="md"
+                  px={4}
+                  py={2.5}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+            </HStack>
+          </Stack>
+        </Box>
+      </HStack>
 
-          {/* Address details: address line 1, 2, city, postal code, country, state */}
-          <Box>
-            <Heading size="md" mb={4} color="gray.800" _dark={{ color: 'white' }}>
-              Address details
-            </Heading>
-            <Stack gap={4}>
+      {/* Full-width card: Address details */}
+      <Box {...cardStyles}>
+        <Heading size="md" mb={4} color="gray.800" _dark={{ color: 'white' }}>
+          Address details
+        </Heading>
+        <Stack gap={4}>
               <Box>
                 <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
                   Address line 1
@@ -371,8 +341,6 @@ export default function BasicContactStep({ data, updateData }: Props) {
                 </HStack>
               </Box>
             </Stack>
-          </Box>
-        </Stack>
       </Box>
     </Stack>
   );

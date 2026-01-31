@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
+import { cardStyles } from '@/lib/onboarding-form-styles';
 
 interface Props {
   data: OnboardingData;
@@ -109,10 +110,11 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
       </Box>
 
       {/* Basic Contact & Personal Information Review */}
-      <Box>
-        <Heading size="md" mb={4}>Basic Contact & Personal Information</Heading>
-        
-        <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} mb={4}>
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Basic Contact & Personal Information
+        </Text>
+        <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4}>
           <GridItem>
             <Text fontWeight="medium">Full Name:</Text>
             <Text fontSize="sm" color="gray.600" mt={1}>
@@ -173,36 +175,32 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         </Grid>
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
       {/* Professional Overview & Expertise Review */}
-      <Box>
-        <Heading size="md" mb={4}>Professional Overview & Expertise</Heading>
-        
-        <Stack direction="column" gap={4} align="stretch">
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Professional Overview & Expertise
+        </Text>
+        <Stack direction="column" gap={5} align="stretch">
           <Box>
-            <Text fontWeight="medium" mb={2}>Professional Headline:</Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontWeight="medium" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>Professional Headline:</Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               {data.headline || 'Not provided'}
             </Text>
           </Box>
-          
           <Box>
-            <Text fontWeight="medium" mb={2}>Short Summary:</Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontWeight="medium" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>Short Summary:</Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               {data.shortSummary || 'Not provided'}
             </Text>
           </Box>
-          
           <Box>
-            <Text fontWeight="medium" mb={2}>Detailed Description:</Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontWeight="medium" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>Detailed Description:</Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               {data.detailedDescription || 'Not provided'}
             </Text>
           </Box>
-          
           <Box>
-            <Text fontWeight="medium" mb={2}>Key Skills:</Text>
+            <Text fontWeight="medium" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>Key Skills:</Text>
             {data.keySkills.length > 0 ? (
               <HStack gap={2} wrap="wrap" mt={2}>
                 {data.keySkills.map((skill, index) => (
@@ -215,9 +213,8 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
               <Text fontSize="sm" color="red.500">No skills added</Text>
             )}
           </Box>
-          
           <Box>
-            <Text fontWeight="medium" mb={2}>Areas of Specialization:</Text>
+            <Text fontWeight="medium" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>Areas of Specialization:</Text>
             {data.areasOfSpecialization.length > 0 ? (
               <HStack gap={2} wrap="wrap" mt={2}>
                 {data.areasOfSpecialization.map((spec, index) => (
@@ -249,13 +246,12 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         </Stack>
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
       {/* Portfolio & Work Samples Review */}
-      <Box>
-        <Heading size="md" mb={4}>Portfolio & Work Samples</Heading>
-        
-        <Stack direction="column" gap={4} align="stretch">
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Portfolio & Work Samples
+        </Text>
+        <Stack direction="column" gap={5} align="stretch">
           {data.portfolioLink && (
             <Box>
               <Text fontWeight="medium" mb={2}>Portfolio Link:</Text>
@@ -339,14 +335,13 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         </Stack>
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
       {/* Experience & Education Review */}
-      <Box>
-        <Heading size="md" mb={4}>Experience & Education</Heading>
-        
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Experience & Education
+        </Text>
         {/* Work History */}
-        <Stack direction="column" gap={3} align="stretch" mb={4}>
+        <Stack direction="column" gap={4} align="stretch" mb={5}>
           <Text fontWeight="medium">Work History:</Text>
           {data.workHistory.map((work, index) => (
             <Box
@@ -376,7 +371,7 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         </Stack>
 
         {/* Education */}
-        <Stack direction="column" gap={3} align="stretch">
+        <Stack direction="column" gap={4} align="stretch">
           <Text fontWeight="medium">Education:</Text>
           {data.education.map((edu, index) => (
             <Box
@@ -419,12 +414,11 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         )}
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
       {/* Availability & Rates Review */}
-      <Box>
-        <Heading size="md" mb={4}>Availability & Rates</Heading>
-        
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Availability & Rates
+        </Text>
         <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4}>
           <GridItem>
             <Text fontWeight="medium">Work Type:</Text>
@@ -479,13 +473,12 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         )}
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
       {/* Social Media & Links Review */}
-      <Box>
-        <Heading size="md" mb={4}>Social Media & Links</Heading>
-        
-        <Stack direction="column" gap={3} align="stretch">
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Social Media & Links
+        </Text>
+        <Stack direction="column" gap={5} align="stretch">
           <Box>
             <Text fontWeight="medium" mb={2}>LinkedIn Profile:</Text>
             {data.linkedinUrl ? (
@@ -525,13 +518,12 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         </Stack>
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
       {/* Testimonials Review */}
-      <Box>
-        <Heading size="md" mb={4}>Client Testimonials</Heading>
-        
-        <Stack direction="column" gap={3} align="stretch">
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Client Testimonials
+        </Text>
+        <Stack direction="column" gap={5} align="stretch">
           {data.testimonials.map((testimonial, index) => (
             <Box
               key={index}
@@ -565,27 +557,6 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
         </Stack>
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={6} />
-
-      {/* Final Notes */}
-      <Box
-        p={4}
-        border="1px"
-        borderColor="blue.200"
-        borderRadius="md"
-        bg="blue.50"
-        _dark={{ bg: 'blue.900', borderColor: 'blue.700' }}
-      >
-        <Box>
-          <Text fontWeight="medium" mb={2} color="blue.800" _dark={{ color: 'blue.200' }}>
-            Ready to Complete Your Profile?
-          </Text>
-          <Text fontSize="sm" color="blue.700" _dark={{ color: 'blue.300' }}>
-            Once you click "Complete Profile", your information will be saved and your profile will be visible to potential clients. 
-            You can always edit your profile later from your dashboard.
-          </Text>
-        </Box>
-      </Box>
     </Stack>
   );
 }

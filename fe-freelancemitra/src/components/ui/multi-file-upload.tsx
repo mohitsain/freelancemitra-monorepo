@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import {
   Box,
   Button,
@@ -10,7 +10,6 @@ import {
   Spinner,
   Link,
   IconButton,
-  Flex,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
@@ -22,6 +21,7 @@ const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 25 * 1024 * 1024; // 25 MB
 
 function formatBytes(bytes: number): string {
+  if (bytes <= 0) return "—";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -50,6 +50,7 @@ export default function MultiFileUpload({
   accept = ".pdf,.jpg,.jpeg,.png,.mp4,.mov",
   category = "projects",
 }: MultiFileUploadProps) {
+  const inputId = `multi-file-${useId().replace(/:/g, "-")}`;
   const [uploading, setUploading] = useState(false);
   const [displayUrls, setDisplayUrls] = useState<Record<number, string>>({});
 
@@ -119,53 +120,45 @@ export default function MultiFileUpload({
 
   return (
     <Box>
-      <Stack gap={2}>
+      <Stack gap={3}>
         {files.length > 0 && (
           <Box>
-            <Flex align="center" justify="space-between" gap={2} mb={2} flexWrap="wrap">
+            <HStack justify="space-between" align="center" mb={1.5} flexWrap="wrap" gap={1}>
               <Text fontSize="xs" color="gray.600" _dark={{ color: "gray.400" }}>
                 {files.length}/{MAX_FILES} files · {formatBytes(totalBytes)} / {formatBytes(MAX_TOTAL_BYTES)}
               </Text>
-            </Flex>
+            </HStack>
             <Wrap spacing={2} align="center">
               {files.map((entry, index) => (
                 <WrapItem key={entry.key}>
                   <HStack
-                    spacing={1}
-                    py={1.5}
-                    px={2}
-                    borderRadius="md"
+                    spacing={2}
+                    py={2}
+                    px={3}
+                    borderRadius="lg"
                     border="1px"
                     borderColor="gray.200"
                     bg="gray.50"
                     _dark={{ borderColor: "gray.600", bg: "gray.700" }}
                     maxW="100%"
                     flexShrink={0}
+                    gap={2}
                   >
-                    <Box
-                      border="1px"
-                      borderColor="gray.300"
-                      _dark={{ borderColor: "gray.500" }}
-                      borderRadius="md"
-                      px={2}
-                      py={1}
+                    <Text
+                      fontSize="sm"
+                      fontWeight="medium"
+                      noOfLines={1}
+                      maxW={{ base: "140px", sm: "180px" }}
+                      title={getFileNameFromKey(entry.key)}
                       flexShrink={1}
                       minW={0}
                     >
-                      <Text
-                        fontSize="sm"
-                        fontWeight="medium"
-                        noOfLines={1}
-                        maxW={{ base: "120px", sm: "160px" }}
-                        title={getFileNameFromKey(entry.key)}
-                      >
-                        {getFileNameFromKey(entry.key) || `File ${index + 1}`}
-                      </Text>
-                    </Box>
-                    <Text fontSize="sm" color="gray.500" _dark={{ color: "gray.400" }} flexShrink={0}>
+                      {getFileNameFromKey(entry.key) || `File ${index + 1}`}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" _dark={{ color: "gray.400" }} flexShrink={0}>
                       {formatBytes(entry.size)}
                     </Text>
-                    <HStack spacing={0} flexShrink={0}>
+                    <HStack spacing={1} flexShrink={0}>
                       {displayUrls[index] && (
                         <Link
                           href={displayUrls[index]}
@@ -174,18 +167,18 @@ export default function MultiFileUpload({
                           fontSize="sm"
                           color="blue.600"
                           _dark={{ color: "blue.300" }}
-                          px={1}
+                          fontWeight="medium"
                         >
                           View
                         </Link>
                       )}
                       <IconButton
-                        size="xs"
+                        size="sm"
                         variant="ghost"
                         aria-label="Remove file"
                         onClick={() => handleRemove(index)}
-                        minW={6}
-                        h={6}
+                        minW={7}
+                        h={7}
                         color="gray.500"
                         _hover={{ color: "red.500", bg: "red.50" }}
                         _dark={{ _hover: { color: "red.300", bg: "red.900" } }}
@@ -204,7 +197,7 @@ export default function MultiFileUpload({
             variant="outline"
             size="sm"
             disabled={uploading || atLimit || totalAtLimit}
-            onClick={() => document.getElementById("multi-file-upload-input")?.click()}
+            onClick={() => document.getElementById(inputId)?.click()}
             {...uploadButtonStyles}
             _dark={{ ...uploadButtonStyles._dark, bg: "gray.700" }}
             px={4}
@@ -222,7 +215,7 @@ export default function MultiFileUpload({
             )}
           </Button>
           <input
-            id="multi-file-upload-input"
+            id={inputId}
             type="file"
             accept={accept}
             multiple
@@ -230,7 +223,7 @@ export default function MultiFileUpload({
             style={{ display: "none" }}
           />
           <Text fontSize="xs" color="gray.500" _dark={{ color: "gray.400" }}>
-            Max 5 files, 25 MB · multi-select supported
+            Up to {MAX_FILES} files, {formatBytes(MAX_TOTAL_BYTES)} total · multi-select OK
           </Text>
         </HStack>
       </Stack>

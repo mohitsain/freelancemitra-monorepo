@@ -5,7 +5,6 @@ import {
   Stack,
   HStack,
   Text,
-  Heading,
   Input,
   Textarea,
   Button,
@@ -14,7 +13,7 @@ import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
 import SkillsDropdown from '@/components/ui/skills-dropdown';
 import MultiFileUpload from '@/components/ui/multi-file-upload';
-import { inputBorderStyles, textareaBorderStyles, addBlockButtonStyles, addSectionButtonStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
 
 interface Props {
   data: OnboardingData;
@@ -65,105 +64,37 @@ export default function PortfolioStep({ data, updateData }: Props) {
   };
 
   return (
-    <Stack direction="column" gap={1} align="stretch">
+    <Stack direction="column" gap={6} align="stretch">
       {/* Portfolio Links Section */}
-      <Box
-        p={8}
-        bg="white"
-        borderRadius="xl"
-        border="1px"
-        borderColor="gray.100"
-        boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-        _dark={{
-          bg: 'gray.800',
-          borderColor: 'gray.700',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
-        }}
-      >
-        <HStack gap={3} mb={6}>
-          <Box
-            w={12}
-            h={12}
-            borderRadius="full"
-            bg="orange.500"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Text fontSize="xl" color="white" fontWeight="bold">
-              🔗
-            </Text>
-          </Box>
-          <Box>
-            <Heading size="md" color="gray.800" _dark={{ color: 'white' }}>
-              Portfolio Links
-            </Heading>
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              Share your external portfolio links (Behance, Dribbble, GitHub, personal website)
-            </Text>
-          </Box>
-        </HStack>
-        
-        <Stack direction="column" gap={4} align="stretch">
-          <Box>
-            <Text fontWeight="semibold" mb={3} color="gray.700" _dark={{ color: 'gray.300' }}>
-              Portfolio Link (Optional)
-            </Text>
-            <Input
-              placeholder="https://behance.net/yourportfolio or https://github.com/yourusername"
-              value={data.portfolioLink}
-              onChange={(e) => updateData({ portfolioLink: e.target.value })}
-              type="url"
-              size="lg"
-              px={6}
-              py={3}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-            />
-          </Box>
-        </Stack>
+      <Box {...cardStyles}>
+        <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
+          Portfolio Link (Optional)
+        </Text>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} mb={4}>
+          Share your external portfolio (Behance, Dribbble, GitHub, personal website)
+        </Text>
+        <Input
+          placeholder="https://behance.net/yourportfolio or https://github.com/yourusername"
+          value={data.portfolioLink}
+          onChange={(e) => updateData({ portfolioLink: e.target.value })}
+          type="url"
+          {...inputSizes}
+          {...inputBorderStyles}
+          _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+        />
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={1} _dark={{ borderColor: 'gray.600' }} />
-
       {/* Work Samples Section */}
-      <Box
-        p={8}
-        bg="white"
-        borderRadius="xl"
-        border="1px"
-        borderColor="gray.100"
-        boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-        _dark={{
-          bg: 'gray.800',
-          borderColor: 'gray.700',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
-        }}
-      >
-        <HStack justify="space-between" align="flex-start" mb={6} flexWrap="wrap" gap={3}>
-          <HStack gap={3}>
-            <Box
-              w={12}
-              h={12}
-              borderRadius="full"
-              bg="pink.500"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Text fontSize="xl" color="white" fontWeight="bold">
-                🎨
-              </Text>
-            </Box>
-            <Box>
-              <Heading size="md" color="gray.800" _dark={{ color: 'white' }}>
-                Work Samples
-              </Heading>
-              <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-                Showcase your best work with detailed project information
-              </Text>
-            </Box>
-          </HStack>
+      <Box {...cardStyles}>
+        <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
+          <Box>
+            <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>
+              Work Samples
+            </Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+              Showcase your best work with detailed project information
+            </Text>
+          </Box>
           <Button
             onClick={addPortfolioSample}
             colorScheme="blue"
@@ -172,16 +103,16 @@ export default function PortfolioStep({ data, updateData }: Props) {
             + Add Another Work Sample
           </Button>
         </HStack>
-        
+
         {data.portfolioSamples.map((sample, index) => (
           <Box
             key={index}
-            p={6}
+            p={5}
             border="1px"
             borderColor="gray.200"
-            borderRadius="xl"
+            borderRadius="lg"
             bg="gray.50"
-            mb={6}
+            mb={index < data.portfolioSamples.length - 1 ? 5 : 0}
             boxShadow="0 2px 4px rgba(0, 0, 0, 0.05)"
             _dark={{
               borderColor: 'gray.600',
@@ -189,94 +120,66 @@ export default function PortfolioStep({ data, updateData }: Props) {
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
             }}
           >
-            <HStack justify="space-between" mb={6}>
-              <HStack gap={3}>
-                <Box
-                  w={8}
-                  h={8}
-                  borderRadius="full"
-                  bg="pink.100"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  _dark={{ bg: 'pink.900' }}
-                >
-                  <Text fontSize="sm" color="pink.600" fontWeight="bold" _dark={{ color: 'pink.300' }}>
-                    {index + 1}
-                  </Text>
-                </Box>
-                <Text fontWeight="bold" fontSize="lg" color="gray.800" _dark={{ color: 'white' }}>
-                  Work Sample {index + 1}
-                </Text>
-              </HStack>
+            <HStack justify="space-between" mb={4}>
+              <Text fontWeight="bold" fontSize="md" color="gray.800" _dark={{ color: 'white' }}>
+                Work Sample {index + 1}
+              </Text>
               {data.portfolioSamples.length > 1 && (
                 <Button
                   size="sm"
                   variant="ghost"
                   colorScheme="red"
                   onClick={() => removePortfolioSample(index)}
-                  _hover={{
-                    bg: 'red.50',
-                    color: 'red.600'
-                  }}
-                  _dark={{
-                    _hover: {
-                      bg: 'red.900',
-                      color: 'red.400'
-                    }
-                  }}
+                  _hover={{ bg: 'red.50', color: 'red.600' }}
+                  _dark={{ _hover: { bg: 'red.900', color: 'red.400' } }}
                 >
                   🗑️ Remove
                 </Button>
               )}
             </HStack>
-            
-            <Stack direction="column" gap={4} align="stretch">
-              <HStack gap={4} w="full">
-                <Box flex={1}>
-                  <Text fontWeight="medium" mb={2}>Project Title *</Text>
+
+            <Stack direction="column" gap={5} align="stretch">
+              <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
+                <Box flex={1} minW={0}>
+                  <Text {...labelStyles}>Project Title *</Text>
                   <Input
                     placeholder="e.g., E-commerce Website Redesign"
                     value={sample.projectTitle}
                     onChange={(e) => updatePortfolioSample(index, 'projectTitle', e.target.value)}
-                    size="lg"
-                    px={6}
-                    py={3}
+                    {...inputSizes}
                     {...inputBorderStyles}
                     _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
                   />
                 </Box>
-                <Box flex={1}>
-                  <Text fontWeight="medium" mb={2}>Client (Optional)</Text>
+                <Box flex={1} minW={0}>
+                  <Text {...labelStyles}>Client (Optional)</Text>
                   <Input
                     placeholder="Client name or company"
                     value={sample.client}
                     onChange={(e) => updatePortfolioSample(index, 'client', e.target.value)}
-                    size="lg"
-                    px={6}
-                    py={3}
+                    {...inputSizes}
                     {...inputBorderStyles}
                     _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
                   />
                 </Box>
               </HStack>
-              
+
               <Box>
-                <Text fontWeight="medium" mb={2}>Project Description *</Text>
+                <Text {...labelStyles}>Project Description *</Text>
                 <Textarea
                   placeholder="What was the project about? What was your role? What was the outcome/impact?"
                   value={sample.description}
                   onChange={(e) => updatePortfolioSample(index, 'description', e.target.value)}
                   rows={4}
-                  px={6}
-                  py={3}
+                  px={4}
+                  py={2.5}
                   {...textareaBorderStyles}
                   _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
                 />
               </Box>
-              
+
               <Box>
-                <Text fontWeight="medium" mb={2}>Skills Used</Text>
+                <Text {...labelStyles}>Skills Used</Text>
                 <SkillsDropdown
                   selectedSkills={sample.skillsUsed}
                   onSkillsChange={(skills) => updatePortfolioSample(index, 'skillsUsed', skills)}
@@ -285,26 +188,23 @@ export default function PortfolioStep({ data, updateData }: Props) {
                   maxSkills={10}
                 />
               </Box>
-              
+
               <Box>
-                <Text fontWeight="medium" mb={2}>Portfolio Link (Optional)</Text>
+                <Text {...labelStyles}>Portfolio Link (Optional)</Text>
                 <Input
                   placeholder="Direct link to this project"
                   value={sample.portfolioLink}
                   onChange={(e) => updatePortfolioSample(index, 'portfolioLink', e.target.value)}
                   type="url"
-                  size="lg"
-                  px={6}
-                  py={3}
+                  {...inputSizes}
                   {...inputBorderStyles}
                   _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
                 />
               </Box>
 
               <Box>
-                <Text fontWeight="medium" mb={2}>Upload files (Optional)</Text>
-                <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }} mb={2}>
-                  Max 5 files, 25 MB total per work sample.
+                <Text {...labelStyles} fontSize="xs" _dark={{ color: 'gray.400' }}>
+                  Upload files (optional) — max 5 files, 25 MB per work sample
                 </Text>
                 <MultiFileUpload
                   files={sample.uploadedFiles ?? []}
@@ -316,7 +216,6 @@ export default function PortfolioStep({ data, updateData }: Props) {
           </Box>
         ))}
       </Box>
-
     </Stack>
   );
 }

@@ -7,9 +7,12 @@ import {
   Button,
   Text,
   Heading,
-  Spinner
+  Spinner,
+  IconButton,
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
+import { ColorModeButton } from '@/components/ui/color-mode';
+import { Tooltip } from '@/components/ui/tooltip';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import BasicContactStep from './steps/basic-contact-step';
@@ -409,140 +412,141 @@ export default function OnboardingFlow() {
   const CurrentStepComponent = STEPS[currentStep].component;
   const progressPercentage = Math.round(((currentStep + 1) / STEPS.length) * 100);
 
+  const navBarHeight = 72;
+  const navBarMinHeightMobile = 64;
+
   return (
-    <Box
-      bg={cardBg}
-      p={6}
-      rounded="xl"
-      shadow="2xl"
-      border="1px"
-      borderColor={borderColor}
-      w="full"
-      maxW="1200px"
-      mx="auto"
-    >
-      <Stack direction="column" gap={3} align="stretch">
-        {/* Header: common to both sections */}
-        <Stack direction="column" gap={2}>
-          <Stack direction="column" gap={2} align="center" w="full">
-            <HStack gap={4} justify="center">
-              <Box
-                w={14}
-                h={14}
-                borderRadius="full"
-                bg="gradient-to-br from-blue.500 to-purple.600"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                boxShadow="0 10px 25px -5px rgba(66, 153, 225, 0.4)"
+    <Box w="full" minH="100vh" px={{ base: 3, md: 6 }} pt={4} pb={{ base: `${navBarMinHeightMobile + 24}px`, md: `${navBarHeight + 16}px` }} bg={cardBg}>
+      <Stack direction="column" gap={3} align="stretch" maxW="1400px" mx="auto">
+        {/* Sticky header: Step left, theme + Skip + Sign Out right */}
+        <Box
+          position="sticky"
+          top={0}
+          zIndex={20}
+          bg={cardBg}
+          py={3}
+          mx={{ base: -3, md: -6 }}
+          px={{ base: 3, md: 6 }}
+          borderBottomWidth="1px"
+          borderColor={borderColor}
+          _dark={{ borderColor: 'gray.600' }}
+        >
+          <Stack direction="column" gap={3} align="stretch">
+            <HStack justify="space-between" align="center" w="full" flexWrap="wrap" gap={2}>
+          <HStack gap={3} align="center" minW={0} flex={1}>
+            <Box
+              w={10}
+              h={10}
+              flexShrink={0}
+              borderRadius="full"
+              bg="gradient-to-br from-blue.500 to-purple.600"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Text fontSize="xl" color="white" fontWeight="bold">🚀</Text>
+            </Box>
+            <Box minW={0} flex={1}>
+              <Text color="gray.600" fontSize="sm" _dark={{ color: 'gray.400' }}>
+                Complete Your Profile
+              </Text>
+              <Heading
+                size="md"
+                color="gray.800"
+                _dark={{ color: 'white' }}
+                fontSize={{ base: 'md', sm: 'lg' }}
               >
-                <Text fontSize="2xl" color="white" fontWeight="bold">
-                  🚀
-                </Text>
-              </Box>
-              <Box textAlign="center">
-                <Heading size="lg" bg="gradient-to-r from-blue.600 to-purple.600" bgClip="text" _dark={{ bgClip: 'text' }}>
-                  Complete Your Profile
-                </Heading>
-                <Text color="gray.600" fontSize="md" mt={1} _dark={{ color: 'gray.300' }}>
-                  Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].title}
-                </Text>
-              </Box>
-            </HStack>
-            <HStack gap={3} justify="center" flexWrap="wrap">
-              <Button
+                Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].title}
+              </Heading>
+            </Box>
+          </HStack>
+          <HStack gap={2} flexShrink={0}>
+            <Tooltip content="Toggle dark mode">
+              <ColorModeButton size="sm" variant="outline" aria-label="Toggle theme" />
+            </Tooltip>
+            <Tooltip content="Skip Onboarding">
+              <IconButton
+                aria-label="Skip Onboarding"
                 variant="outline"
                 colorScheme="blue"
                 size="sm"
                 onClick={handleSkipOnboarding}
-                borderRadius="lg"
-                borderWidth="2px"
-                px={5}
-                _hover={{
-                  bg: 'blue.50',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.3)'
-                }}
-                transition="all 0.2s"
+                fontSize="lg"
               >
-                ⏭️ Skip Onboarding
-              </Button>
-              <Button
+                ⏭️
+              </IconButton>
+            </Tooltip>
+            <Tooltip content="Sign Out">
+              <IconButton
+                aria-label="Sign Out"
                 variant="outline"
                 colorScheme="red"
                 size="sm"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                borderRadius="lg"
-                borderWidth="2px"
-                px={5}
-                _hover={{
-                  bg: 'red.50',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px -5px rgba(239, 68, 68, 0.3)'
-                }}
-                transition="all 0.2s"
+                fontSize="lg"
               >
-                🚪 Sign Out
-              </Button>
+                🚪
+              </IconButton>
+            </Tooltip>
+          </HStack>
             </HStack>
-          </Stack>
-        </Stack>
 
-        {/* Progress Bar: full width */}
-        <Box
-          w="full"
-          bg="gray.100"
-          rounded="full"
-          h="10px"
-          overflow="hidden"
-          position="relative"
-          cursor="pointer"
-          _dark={{ bg: 'gray.700' }}
-          _hover={{
-            transform: 'scale(1.02)',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-          }}
-          transition="all 0.3s ease"
-          title={`${progressPercentage}% Complete - Step ${currentStep + 1} of ${STEPS.length}`}
-        >
-          <Box
-            bg="linear-gradient(90deg, #48BB78 0%, #38A169 100%)"
-            h="full"
-            w={`${progressPercentage}%`}
-            transition="all 0.5s ease-in-out"
-            position="relative"
-            rounded="full"
-            boxShadow="0 2px 8px rgba(72, 187, 120, 0.3)"
-            _hover={{
-              boxShadow: '0 4px 16px rgba(72, 187, 120, 0.4)'
-            }}
-          >
-            {/* Animated shimmer effect */}
+            {/* Progress Bar: full width */}
             <Box
-              position="absolute"
-              top="0"
-              left="-100%"
-              h="full"
-              w="100%"
-              bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)"
-              animation="shimmer 2s infinite"
-            />
-            
-            {/* Progress indicator dot */}
-            <Box
-              position="absolute"
-              right="1px"
-              top="50%"
-              transform="translateY(-50%)"
-              h="6px"
-              w="6px"
-              bg="white"
+              w="full"
+              bg="gray.100"
               rounded="full"
-              boxShadow="0 0 8px rgba(0, 0, 0, 0.3)"
-              border="2px solid"
-              borderColor="green.500"
-            />
-          </Box>
+              h="10px"
+              overflow="hidden"
+              position="relative"
+              cursor="pointer"
+              _dark={{ bg: 'gray.700' }}
+              _hover={{
+                transform: 'scale(1.02)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+              }}
+              transition="all 0.3s ease"
+              title={`${progressPercentage}% Complete - Step ${currentStep + 1} of ${STEPS.length}`}
+            >
+              <Box
+                bg="linear-gradient(90deg, #48BB78 0%, #38A169 100%)"
+                h="full"
+                w={`${progressPercentage}%`}
+                transition="all 0.5s ease-in-out"
+                position="relative"
+                rounded="full"
+                boxShadow="0 2px 8px rgba(72, 187, 120, 0.3)"
+                _hover={{
+                  boxShadow: '0 4px 16px rgba(72, 187, 120, 0.4)'
+                }}
+              >
+                {/* Animated shimmer effect */}
+                <Box
+                  position="absolute"
+                  top="0"
+                  left="-100%"
+                  h="full"
+                  w="100%"
+                  bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)"
+                  animation="shimmer 2s infinite"
+                />
+                {/* Progress indicator dot */}
+                <Box
+                  position="absolute"
+                  right="1px"
+                  top="50%"
+                  transform="translateY(-50%)"
+                  h="6px"
+                  w="6px"
+                  bg="white"
+                  rounded="full"
+                  boxShadow="0 0 8px rgba(0, 0, 0, 0.3)"
+                  border="2px solid"
+                  borderColor="green.500"
+                />
+              </Box>
+            </Box>
+          </Stack>
         </Box>
 
       <HStack align="stretch" gap={3} flexWrap={{ base: "wrap", lg: "nowrap" }}>
@@ -567,100 +571,132 @@ export default function OnboardingFlow() {
                 />
               )}
             </Box>
-
-            {/* Navigation */}
-            <HStack justify="space-between" pt={4} flexWrap="wrap" gap={3}>
-              <Button
-                onClick={prevStep}
-                disabled={currentStep === 0}
-                variant="solid"
-                colorScheme="gray"
-                size="md"
-                borderRadius="lg"
-                px={6}
-                bg="gray.200"
-                color="gray.800"
-                _dark={{ bg: 'gray.600', color: 'white' }}
-                _hover={{
-                  bg: 'gray.300',
-                  _dark: { bg: 'gray.500' },
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-                }}
-                _disabled={{
-                  opacity: 0.5,
-                  cursor: 'not-allowed',
-                  transform: 'none',
-                  boxShadow: 'none'
-                }}
-                transition="all 0.2s"
-              >
-                ← Previous
-              </Button>
-
-              <HStack gap={3} flexWrap="wrap">
-                <Button
-                  variant="solid"
-                  colorScheme="teal"
-                  size="md"
-                  onClick={handleSaveDraft}
-                  loading={saveDraftState === 'saving'}
-                  loadingText="Saving…"
-                  borderRadius="lg"
-                  px={5}
-                  bg="teal.500"
-                  color="white"
-                  _hover={{
-                    bg: 'teal.600',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(45, 212, 191, 0.4)'
-                  }}
-                  transition="all 0.2s"
-                >
-                  💾 Save draft
-                </Button>
-                {currentStep === STEPS.length - 1 ? (
-                  <Button
-                    onClick={handleComplete}
-                    colorScheme="green"
-                    size="md"
-                    px={8}
-                    borderRadius="lg"
-                    bg="linear-gradient(90deg, #48BB78, #38A169)"
-                    isLoading={submitState === 'submitting'}
-                    loadingText="Saving…"
-                    _hover={{
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 10px 25px -5px rgba(72, 187, 120, 0.4)',
-                      bg: 'linear-gradient(90deg, #38A169, #2F855A)'
-                    }}
-                    transition="all 0.2s"
-                  >
-                    🎉 Complete Profile →
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={nextStep}
-                    colorScheme="blue"
-                    size="md"
-                    px={8}
-                    borderRadius="lg"
-                    bg="gradient-to-r from-blue.500 to-purple.600"
-                    _hover={{
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 10px 25px -5px rgba(66, 153, 225, 0.4)'
-                    }}
-                    transition="all 0.2s"
-                  >
-                    Next →
-                  </Button>
-                )}
-              </HStack>
-            </HStack>
           </Stack>
         </Box>
       </HStack>
     </Stack>
+
+      {/* Sticky bottom navigation */}
+      <Box
+        position="fixed"
+        bottom={0}
+        left={0}
+        right={0}
+        minH={{ base: `${navBarMinHeightMobile}px`, md: `${navBarHeight}px` }}
+        py={{ base: 3, md: 0 }}
+        bg={cardBg}
+        borderTopWidth="1px"
+        borderColor={borderColor}
+        boxShadow="0 -4px 6px -1px rgba(0, 0, 0, 0.1)"
+        _dark={{ boxShadow: "0 -4px 6px -1px rgba(0, 0, 0, 0.3)" }}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        zIndex={10}
+      >
+        <HStack
+          justify="space-between"
+          align="center"
+          alignContent={{ base: "center", md: "stretch" }}
+          w="full"
+          maxW="1400px"
+          px={{ base: 3, md: 6 }}
+          gap={{ base: 2, md: 3 }}
+          flexWrap={{ base: "wrap", md: "nowrap" }}
+          flexDirection="row"
+        >
+          <Button
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            variant="solid"
+            colorScheme="gray"
+            size={{ base: "sm", md: "md" }}
+            borderRadius="lg"
+            px={{ base: 3, md: 6 }}
+            flexShrink={0}
+            bg="gray.200"
+            color="gray.800"
+            _dark={{ bg: 'gray.600', color: 'white' }}
+            _hover={{
+              bg: 'gray.300',
+              _dark: { bg: 'gray.500' },
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+            }}
+            _disabled={{
+              opacity: 0.5,
+              cursor: 'not-allowed',
+              transform: 'none',
+              boxShadow: 'none'
+            }}
+            transition="all 0.2s"
+          >
+            ← Previous
+          </Button>
+
+          <HStack gap={{ base: 2, md: 3 }} flexShrink={1} justify="flex-end" minW={0} ml={{ base: "auto", md: 0 }}>
+            <Button
+              variant="solid"
+              colorScheme="teal"
+              size={{ base: "sm", md: "md" }}
+              onClick={handleSaveDraft}
+              loading={saveDraftState === 'saving'}
+              loadingText="Saving…"
+              borderRadius="lg"
+              px={{ base: 3, md: 5 }}
+              flexShrink={0}
+              bg="teal.500"
+              color="white"
+              _hover={{
+                bg: 'teal.600',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(45, 212, 191, 0.4)'
+              }}
+              transition="all 0.2s"
+            >
+              💾 Save draft
+            </Button>
+            {currentStep === STEPS.length - 1 ? (
+              <Button
+                onClick={handleComplete}
+                colorScheme="green"
+                size={{ base: "sm", md: "md" }}
+                px={{ base: 4, md: 8 }}
+                borderRadius="lg"
+                flexShrink={0}
+                bg="linear-gradient(90deg, #48BB78, #38A169)"
+                isLoading={submitState === 'submitting'}
+                loadingText="Saving…"
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px -5px rgba(72, 187, 120, 0.4)',
+                  bg: 'linear-gradient(90deg, #38A169, #2F855A)'
+                }}
+                transition="all 0.2s"
+              >
+                🎉 Complete →
+              </Button>
+            ) : (
+              <Button
+                onClick={nextStep}
+                colorScheme="blue"
+                size={{ base: "sm", md: "md" }}
+                px={{ base: 4, md: 8 }}
+                borderRadius="lg"
+                flexShrink={0}
+                bg="gradient-to-r from-blue.500 to-purple.600"
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px -5px rgba(66, 153, 225, 0.4)'
+                }}
+                transition="all 0.2s"
+              >
+                Next →
+              </Button>
+            )}
+          </HStack>
+        </HStack>
+      </Box>
       
       {/* CSS for shimmer animation */}
       <style jsx>{`

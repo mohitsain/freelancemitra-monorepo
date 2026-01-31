@@ -6,15 +6,12 @@ import {
   HStack,
   Button,
   Text,
-  Heading,
   Input,
   Textarea,
-  Select,
-  IconButton
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
 import SingleFileUpload from '@/components/ui/single-file-upload';
 
 interface Props {
@@ -85,213 +82,199 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
   };
 
   return (
-    <Stack direction="column" gap={1} align="stretch">
+    <Stack direction="column" gap={6} align="stretch">
       {/* Work History Section */}
-      <Box>
-        <HStack justify="space-between" align="flex-start" mb={2} flexWrap="wrap" gap={2}>
+      <Box {...cardStyles}>
+        <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
-            <Heading size="md" mb={1}>Work History</Heading>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>
+              Work History
+            </Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               Add your relevant work experience to showcase your expertise
             </Text>
           </Box>
-          <Button
-            onClick={addWorkHistory}
-            colorScheme="blue"
-            {...addSectionButtonStyles}
-          >
+          <Button onClick={addWorkHistory} colorScheme="blue" {...addSectionButtonStyles}>
             + Add Another Position
           </Button>
         </HStack>
-        
+
         {data.workHistory.map((work, index) => (
           <Box
             key={index}
-            p={4}
+            p={5}
             border="1px"
             borderColor={borderColor}
-            borderRadius="md"
+            borderRadius="lg"
             bg={bgColor}
-            mb={2}
+            mb={index < data.workHistory.length - 1 ? 5 : 0}
+            _dark={{ borderColor: 'gray.600', bg: 'gray.700' }}
           >
-            <HStack justify="space-between" mb={2}>
-              <Text fontWeight="medium">Position {index + 1}</Text>
+            <HStack justify="space-between" mb={4}>
+              <Text fontWeight="medium" color="gray.700" _dark={{ color: 'gray.300' }}>
+                Position {index + 1}
+              </Text>
               {data.workHistory.length > 1 && (
-                <Button
-                  aria-label="Remove work history"
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => removeWorkHistory(index)}
-                >
+                <Button aria-label="Remove work history" size="sm" variant="ghost" colorScheme="red" onClick={() => removeWorkHistory(index)}>
                   ✕
                 </Button>
               )}
             </HStack>
-            
-            <Stack direction="column" gap={3}>
-              <HStack gap={3} w="full">
-                <Input
-                  placeholder="Company/Client Name"
-                  value={work.company}
-                  onChange={(e) => updateWorkHistory(index, 'company', e.target.value)}
-                  size="lg"
-                  px={6}
-                  py={3}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-                />
-                <Input
-                  placeholder="Job Title/Role"
-                  value={work.jobTitle}
-                  onChange={(e) => updateWorkHistory(index, 'jobTitle', e.target.value)}
-                  size="lg"
-                  px={6}
-                  py={3}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-                />
+            <Stack direction="column" gap={5}>
+              <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
+                <Box flex={1} minW={0}>
+                  <Text {...labelStyles}>Company/Client Name</Text>
+                  <Input
+                    placeholder="Company or client name"
+                    value={work.company}
+                    onChange={(e) => updateWorkHistory(index, 'company', e.target.value)}
+                    {...inputSizes}
+                    {...inputBorderStyles}
+                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  />
+                </Box>
+                <Box flex={1} minW={0}>
+                  <Text {...labelStyles}>Job Title/Role</Text>
+                  <Input
+                    placeholder="Job title or role"
+                    value={work.jobTitle}
+                    onChange={(e) => updateWorkHistory(index, 'jobTitle', e.target.value)}
+                    {...inputSizes}
+                    {...inputBorderStyles}
+                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  />
+                </Box>
               </HStack>
-              
-              <HStack gap={3} w="full">
-                <Input
-                  type="date"
-                  placeholder="Start Date"
-                  value={work.startDate}
-                  onChange={(e) => updateWorkHistory(index, 'startDate', e.target.value)}
-                  size="lg"
-                  px={6}
-                  py={3}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-                />
-                <Input
-                  type="date"
-                  placeholder="End Date"
-                  value={work.endDate}
-                  onChange={(e) => updateWorkHistory(index, 'endDate', e.target.value)}
-                  size="lg"
-                  px={6}
-                  py={3}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-                />
+              <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
+                <Box flex={1} minW={0}>
+                  <Text {...labelStyles}>Start Date</Text>
+                  <Input
+                    type="date"
+                    value={work.startDate}
+                    onChange={(e) => updateWorkHistory(index, 'startDate', e.target.value)}
+                    {...inputSizes}
+                    {...inputBorderStyles}
+                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  />
+                </Box>
+                <Box flex={1} minW={0}>
+                  <Text {...labelStyles}>End Date</Text>
+                  <Input
+                    type="date"
+                    value={work.endDate}
+                    onChange={(e) => updateWorkHistory(index, 'endDate', e.target.value)}
+                    {...inputSizes}
+                    {...inputBorderStyles}
+                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  />
+                </Box>
               </HStack>
-              
-              <Textarea
-                placeholder="Key Responsibilities & Achievements"
-                value={work.responsibilities}
-                onChange={(e) => updateWorkHistory(index, 'responsibilities', e.target.value)}
-                rows={3}
-                px={6}
-                py={3}
-                {...textareaBorderStyles}
-                _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
-              />
+              <Box>
+                <Text {...labelStyles}>Key Responsibilities & Achievements</Text>
+                <Textarea
+                  placeholder="Describe your key responsibilities and achievements..."
+                  value={work.responsibilities}
+                  onChange={(e) => updateWorkHistory(index, 'responsibilities', e.target.value)}
+                  rows={3}
+                  px={4}
+                  py={2.5}
+                  {...textareaBorderStyles}
+                  _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
             </Stack>
           </Box>
         ))}
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={1} _dark={{ borderColor: 'gray.600' }} />
-
       {/* Education Section */}
-      <Box>
-        <HStack justify="space-between" align="flex-start" mb={2} flexWrap="wrap" gap={2}>
+      <Box {...cardStyles}>
+        <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
-            <Heading size="md" mb={1}>Education</Heading>
-            <Text fontSize="sm" color="gray.600">
-              Add your educational background and certifications
+            <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>
+              Education
+            </Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+              Add your educational background
             </Text>
           </Box>
-          <Button
-            onClick={addEducation}
-            colorScheme="blue"
-            {...addSectionButtonStyles}
-          >
+          <Button onClick={addEducation} colorScheme="blue" {...addSectionButtonStyles}>
             + Add Another Education
           </Button>
         </HStack>
-        
+
         {data.education.map((edu, index) => (
           <Box
             key={index}
-            p={4}
+            p={5}
             border="1px"
             borderColor={borderColor}
-            borderRadius="md"
+            borderRadius="lg"
             bg={bgColor}
-            mb={2}
+            mb={index < data.education.length - 1 ? 5 : 0}
+            _dark={{ borderColor: 'gray.600', bg: 'gray.700' }}
           >
-            <HStack justify="space-between" mb={2}>
-              <Text fontWeight="medium">Education {index + 1}</Text>
+            <HStack justify="space-between" mb={4}>
+              <Text fontWeight="medium" color="gray.700" _dark={{ color: 'gray.300' }}>
+                Education {index + 1}
+              </Text>
               {data.education.length > 1 && (
-                <Button
-                  aria-label="Remove education"
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => removeEducation(index)}
-                >
+                <Button aria-label="Remove education" size="sm" variant="ghost" colorScheme="red" onClick={() => removeEducation(index)}>
                   ✕
                 </Button>
               )}
             </HStack>
-            
-            <Stack direction="column" gap={3}>
-              <Input
-                placeholder="Degree/Certification"
-                value={edu.degree}
-                onChange={(e) => updateEducation(index, 'degree', e.target.value)}
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
-              
-              <Input
-                placeholder="Institution Name"
-                value={edu.institution}
-                onChange={(e) => updateEducation(index, 'institution', e.target.value)}
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
-              
-              <Input
-                placeholder="Year of Graduation (Optional)"
-                value={edu.graduationYear}
-                onChange={(e) => updateEducation(index, 'graduationYear', e.target.value)}
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
+            <Stack direction="column" gap={5}>
+              <Box>
+                <Text {...labelStyles}>Degree/Certification</Text>
+                <Input
+                  placeholder="Degree or certification"
+                  value={edu.degree}
+                  onChange={(e) => updateEducation(index, 'degree', e.target.value)}
+                  {...inputSizes}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+              <Box>
+                <Text {...labelStyles}>Institution Name</Text>
+                <Input
+                  placeholder="Institution name"
+                  value={edu.institution}
+                  onChange={(e) => updateEducation(index, 'institution', e.target.value)}
+                  {...inputSizes}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+              <Box>
+                <Text {...labelStyles}>Year of Graduation (Optional)</Text>
+                <Input
+                  placeholder="e.g. 2020"
+                  value={edu.graduationYear}
+                  onChange={(e) => updateEducation(index, 'graduationYear', e.target.value)}
+                  {...inputSizes}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
             </Stack>
           </Box>
         ))}
       </Box>
 
-      <Box borderTop="1px" borderColor="gray.200" my={1} _dark={{ borderColor: 'gray.600' }} />
-
       {/* Certifications & Awards Section */}
-      <Box>
-        <HStack justify="space-between" align="flex-start" mb={2} flexWrap="wrap" gap={2}>
+      <Box {...cardStyles}>
+        <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
-            <Heading size="md" mb={1}>Certifications & Awards</Heading>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>
+              Certifications & Awards
+            </Text>
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
               List relevant certifications or awards; optional file per item (max 10 MB)
             </Text>
           </Box>
-          <Button
-            onClick={addCertification}
-            colorScheme="blue"
-            {...addSectionButtonStyles}
-          >
+          <Button onClick={addCertification} colorScheme="blue" {...addSectionButtonStyles}>
             + Add Certification
           </Button>
         </HStack>
@@ -299,50 +282,51 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
         {data.certifications.map((cert, index) => (
           <Box
             key={index}
-            p={4}
+            p={5}
             border="1px"
             borderColor={borderColor}
-            borderRadius="md"
+            borderRadius="lg"
             bg={bgColor}
-            mb={2}
+            mb={index < data.certifications.length - 1 ? 5 : 0}
+            _dark={{ borderColor: 'gray.600', bg: 'gray.700' }}
           >
-            <HStack justify="space-between" mb={2}>
-              <Text fontWeight="medium">Certification {index + 1}</Text>
+            <HStack justify="space-between" mb={4}>
+              <Text fontWeight="medium" color="gray.700" _dark={{ color: 'gray.300' }}>
+                Certification {index + 1}
+              </Text>
               {data.certifications.length > 1 && (
-                <Button
-                  aria-label="Remove certification"
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => removeCertification(index)}
-                >
+                <Button aria-label="Remove certification" size="sm" variant="ghost" colorScheme="red" onClick={() => removeCertification(index)}>
                   ✕
                 </Button>
               )}
             </HStack>
-            <Stack direction="column" gap={3}>
-              <Input
-                placeholder="Title (e.g. AWS Certified, PMP)"
-                value={cert.title}
-                onChange={(e) => updateCertification(index, 'title', e.target.value)}
-                size="lg"
-                px={6}
-                py={3}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-              />
-              <Textarea
-                placeholder="Description or issuing body..."
-                value={cert.description}
-                onChange={(e) => updateCertification(index, 'description', e.target.value)}
-                rows={2}
-                px={6}
-                py={3}
-                {...textareaBorderStyles}
-                _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
-              />
+            <Stack direction="column" gap={5}>
               <Box>
-                <Text fontSize="sm" fontWeight="medium" mb={2}>Attachment (optional, max 10 MB)</Text>
+                <Text {...labelStyles}>Title</Text>
+                <Input
+                  placeholder="e.g. AWS Certified, PMP"
+                  value={cert.title}
+                  onChange={(e) => updateCertification(index, 'title', e.target.value)}
+                  {...inputSizes}
+                  {...inputBorderStyles}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+              <Box>
+                <Text {...labelStyles}>Description or issuing body</Text>
+                <Textarea
+                  placeholder="Description or issuing body..."
+                  value={cert.description}
+                  onChange={(e) => updateCertification(index, 'description', e.target.value)}
+                  rows={2}
+                  px={4}
+                  py={2.5}
+                  {...textareaBorderStyles}
+                  _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                />
+              </Box>
+              <Box>
+                <Text {...labelStyles}>Attachment (optional, max 10 MB)</Text>
                 <SingleFileUpload
                   file={cert.fileKey ? { key: cert.fileKey, size: 0 } : null}
                   onFileChange={(entry) => updateCertification(index, 'fileKey', entry?.key ?? '')}

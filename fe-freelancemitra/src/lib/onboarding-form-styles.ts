@@ -98,3 +98,40 @@ export const addSectionButtonStyles = {
   },
   transition: "all 0.2s",
 };
+
+/** Section card wrapper - use for all onboarding step sections (step 1 style) */
+export const cardStyles = {
+  p: { base: 5, md: 6 },
+  bg: "white",
+  borderRadius: "xl",
+  border: "1px",
+  borderColor: "gray.100",
+  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+  _dark: {
+    bg: "gray.800",
+    borderColor: "gray.700",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
+  },
+};
+
+/** Spacing between sections in a step (Stack gap) */
+export const sectionGap = 6;
+
+/** Spacing between fields inside a section (Stack gap) */
+export const fieldGap = 5;
+
+/** Label above input/textarea/dropdown - consistent across steps */
+export const labelStyles = {
+  fontWeight: "medium" as const,
+  mb: 2,
+  fontSize: "sm" as const,
+  color: "gray.600",
+  _dark: { color: "gray.400" },
+};
+
+/** Input/textarea size and padding - consistent with step 1 */
+export const inputSizes = {
+  size: "md" as const,
+  px: 4,
+  py: 2.5,
+};
