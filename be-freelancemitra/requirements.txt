@@ -1,0 +1,19 @@
+# FastAPI & server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Database
+sqlalchemy[asyncio]>=2.0.36
+asyncpg>=0.30.0
+alembic>=1.13.0
+psycopg2-binary>=2.9.9
+
+# Config & validation
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+
+# Auth (NextAuth JWT + session validation)
+httpx>=0.28.0
+
+# S3 uploads
+boto3>=1.35.0

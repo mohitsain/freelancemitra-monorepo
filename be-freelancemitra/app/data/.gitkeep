@@ -1,0 +1,2 @@
+# Place countries-states.json here and run scripts/seed_locations.py
+# Download: curl -o countries-states.json https://raw.githubusercontent.com/stefanbinder/countries-states/master/countries.json

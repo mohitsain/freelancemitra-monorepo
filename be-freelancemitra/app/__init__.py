@@ -1,0 +1,1 @@
+"""FreelanceMitra backend application."""
