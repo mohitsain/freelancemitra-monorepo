@@ -35,6 +35,7 @@ export function getStepValidationErrors(data: OnboardingData, stepIndex: number)
       if (!data.phoneNumber?.trim()) errors.push('Phone number is required');
       if (!data.city?.trim()) errors.push('City is required');
       if (!data.country?.trim()) errors.push('Country is required');
+      if (!data.addressLine1?.trim()) errors.push('Address line 1 is required');
       break;
     }
     case STEP_PROFESSIONAL_OVERVIEW: {
@@ -117,4 +118,70 @@ export function areAllStepsValid(data: OnboardingData): boolean {
     if (!isStepValid(data, i)) return false;
   }
   return true;
+}
+
+/**
+ * Returns field keys that are invalid (missing or empty required). Used to highlight inputs with red border.
+ */
+export function getInvalidFieldKeys(data: OnboardingData): string[] {
+  const keys: string[] = [];
+
+  // Step 0: Basic Contact
+  if (!data.firstName?.trim()) keys.push('firstName');
+  if (!data.lastName?.trim()) keys.push('lastName');
+  if (!data.professionalTitle?.trim()) keys.push('professionalTitle');
+  if (!data.countryPhoneCode?.trim()) keys.push('countryPhoneCode');
+  if (!data.phoneNumber?.trim()) keys.push('phoneNumber');
+  if (!data.city?.trim()) keys.push('city');
+  if (!data.country?.trim()) keys.push('country');
+  if (!data.addressLine1?.trim()) keys.push('addressLine1');
+
+  // Step 1: Professional Overview
+  if (!data.headline?.trim()) keys.push('headline');
+  if (!data.shortSummary?.trim()) keys.push('shortSummary');
+  if (!data.keySkills?.length) keys.push('keySkills');
+  if (!data.areasOfSpecialization?.length) keys.push('areasOfSpecialization');
+  const languages = (data.languagesSpoken ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  if (!languages.length) keys.push('languagesSpoken');
+
+  // Step 2: Portfolio
+  const hasLink = !!data.portfolioLink?.trim();
+  const hasValidSample = data.portfolioSamples?.some(
+    (s) => !!s.projectTitle?.trim() && !!s.description?.trim()
+  );
+  if (!hasLink && !hasValidSample) {
+    keys.push('portfolioLink');
+    keys.push('portfolioSamples');
+  }
+
+  // Step 3: Experience
+  const hasValidEndDate = (w: { endDate?: string }) =>
+    !!w.endDate?.trim() || w.endDate === 'Present';
+  const validWork = data.workHistory?.some(
+    (w) =>
+      !!w.company?.trim() &&
+      !!w.jobTitle?.trim() &&
+      !!w.startDate?.trim() &&
+      hasValidEndDate(w) &&
+      !!w.responsibilities?.trim()
+  );
+  if (!validWork) keys.push('workHistory');
+
+  // Step 4: Availability
+  if (!data.startDate?.trim()) keys.push('startDate');
+  if (!data.currency?.trim()) keys.push('currency');
+  if (data.availability === 'full-time' || data.availability === 'part-time') {
+    if (data.hourlyRate == null || data.hourlyRate <= 0) keys.push('hourlyRate');
+  } else {
+    const hasRate = !!data.projectBasedRate?.trim() || !!data.retainerRate?.trim();
+    if (!hasRate) {
+      keys.push('projectBasedRate');
+      keys.push('retainerRate');
+    }
+  }
+
+  // Step 5: Social (only invalid if URL is malformed)
+  if (data.linkedinUrl?.trim() && !isValidUrl(data.linkedinUrl)) keys.push('linkedinUrl');
+
+  return keys;
 }

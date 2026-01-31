@@ -18,6 +18,7 @@ import SingleFileUpload from '@/components/ui/single-file-upload';
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
 export default function TestimonialsStep({ data, updateData }: Props) {

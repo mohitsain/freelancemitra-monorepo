@@ -24,6 +24,7 @@ import { toastError, toastSuccess } from '@/components/ui/toaster';
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
 /** True if value is an S3 key (to be resolved to display URL). */
@@ -33,7 +34,11 @@ function isS3Key(value: string): boolean {
 
 import { inputBorderStyles, cardStyles, labelStyles, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
-export default function BasicContactStep({ data, updateData }: Props) {
+function invalidInputStyles(invalid: boolean) {
+  return invalid ? { borderColor: 'red.500' as const } : {};
+}
+
+export default function BasicContactStep({ data, updateData, invalidFields }: Props) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('gray.50', 'gray.700');
   const avatarCircleBg = useColorModeValue('gray.200', 'gray.600');
@@ -187,6 +192,21 @@ export default function BasicContactStep({ data, updateData }: Props) {
                 '📁 Upload Photo'
               )}
             </Button>
+            {profilePictureSrc && (
+              <Button
+                variant="outline"
+                colorScheme="red"
+                size="sm"
+                w="full"
+                mt={3}
+                py={2}
+                borderRadius="lg"
+                disabled={uploading}
+                onClick={() => updateData({ profilePicture: '' })}
+              >
+                Remove photo
+              </Button>
+            )}
             <input
               id="profile-upload"
               type="file"
@@ -217,7 +237,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                   px={4}
                   py={2.5}
                   {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('firstName') ? { borderColor: 'red.400' } : {}) }}
+                  {...invalidInputStyles(!!invalidFields?.includes('firstName'))}
                 />
               </Box>
               <Box flex={{ base: '1 1 100%', sm: '1' }} minW={0}>
@@ -233,7 +254,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                   px={4}
                   py={2.5}
                   {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('lastName') ? { borderColor: 'red.400' } : {}) }}
+                  {...invalidInputStyles(!!invalidFields?.includes('lastName'))}
                 />
               </Box>
             </HStack>
@@ -241,24 +263,28 @@ export default function BasicContactStep({ data, updateData }: Props) {
               <Text {...labelStyles}>
                 Professional Title/Role <Text {...requiredAsteriskStyles}>*</Text>
               </Text>
-              <RoleDropdown
-                value={data.professionalTitle}
-                onChange={(value) => updateData({ professionalTitle: value })}
-                placeholder="Select your professional role"
-                size="md"
-              />
+              <Box {...(invalidFields?.includes('professionalTitle') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
+                <RoleDropdown
+                  value={data.professionalTitle}
+                  onChange={(value) => updateData({ professionalTitle: value })}
+                  placeholder="Select your professional role"
+                  size="md"
+                />
+              </Box>
             </Box>
             <HStack gap={3} w="full" align="flex-end" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
               <Box minW={{ base: '100%', sm: '140px' }} w={{ sm: '160px' }}>
                 <Text {...labelStyles}>
                   Country code <Text {...requiredAsteriskStyles}>*</Text>
                 </Text>
+                <Box {...(invalidFields?.includes('countryPhoneCode') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
                 <PhoneCodeDropdown
                   value={data.countryPhoneCode}
                   onChange={(value) => updateData({ countryPhoneCode: value })}
                   placeholder="Code"
                   size="md"
                 />
+              </Box>
               </Box>
               <Box flex={1} minW={0}>
                 <Text {...labelStyles}>
@@ -273,7 +299,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                   px={4}
                   py={2.5}
                   {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('phoneNumber') ? { borderColor: 'red.400' } : {}) }}
+                  {...invalidInputStyles(!!invalidFields?.includes('phoneNumber'))}
                 />
               </Box>
             </HStack>
@@ -289,7 +316,7 @@ export default function BasicContactStep({ data, updateData }: Props) {
         <Stack gap={4}>
               <Box>
                 <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
-                  Address line 1
+                  Address line 1 <Text {...requiredAsteriskStyles}>*</Text>
                 </Text>
                 <Input
                   placeholder="Street address, P.O. box"
@@ -299,7 +326,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                   px={6}
                   py={3}
                   {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('addressLine1') ? { borderColor: 'red.400' } : {}) }}
+                  {...invalidInputStyles(!!invalidFields?.includes('addressLine1'))}
                 />
               </Box>
               <Box>
@@ -331,7 +359,8 @@ export default function BasicContactStep({ data, updateData }: Props) {
                       px={6}
                       py={3}
                       {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                      _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('city') ? { borderColor: 'red.400' } : {}) }}
+                      {...invalidInputStyles(!!invalidFields?.includes('city'))}
                     />
                   </Box>
                   <Box flex="1 1 100px" minW="100px">
@@ -351,6 +380,7 @@ export default function BasicContactStep({ data, updateData }: Props) {
                     <Text {...labelStyles}>
                       Country <Text {...requiredAsteriskStyles}>*</Text>
                     </Text>
+                    <Box {...(invalidFields?.includes('country') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
                     <CountryDropdown
                       value={data.country}
                       onChange={(value) => updateData({ country: value })}
@@ -361,6 +391,7 @@ export default function BasicContactStep({ data, updateData }: Props) {
                       placeholder="Country"
                       size="lg"
                     />
+                  </Box>
                   </Box>
                   <Box flex="1 1 140px" minW="140px">
                     <Text {...labelStyles}>State / Province</Text>

@@ -10,12 +10,15 @@ import {
 import { OnboardingData } from '../onboarding-flow';
 import { inputBorderStyles, textareaBorderStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
 
+const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
+
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
-export default function SocialMediaStep({ data, updateData }: Props) {
+export default function SocialMediaStep({ data, updateData, invalidFields }: Props) {
   const validateUrl = (url: string) => {
     if (!url) return true;
     try {
@@ -46,6 +49,7 @@ export default function SocialMediaStep({ data, updateData }: Props) {
             {...inputSizes}
             {...inputBorderStyles}
             _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+            {...(invalidFields?.includes('linkedinUrl') ? invalidBorder : {})}
           />
           {!validateUrl(data.linkedinUrl) && data.linkedinUrl !== '' && (
             <Text color="red.500" fontSize="sm" mt={2}>

@@ -115,7 +115,7 @@ function AccountMenuContent(props: {
       <Separator />
       <Box py={1}>
         <Menu.Item value="profile" asChild>
-          <Link href="/">
+          <Link href="/profile">
             <HStack gap={3} px={3} py={2}>
               <Icon as={FaUser} color={textSecondary} fontSize="sm" />
               <Text fontSize="sm" color={textPrimary}>Profile</Text>
@@ -181,6 +181,7 @@ const GENERAL_ITEMS = [
 
 const PREFETCH_ROUTES = [
   '/',
+  '/profile',
   '/portfolio-creation',
   '/proposal-building',
   '/project-creation',
@@ -204,6 +205,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [router]);
   const { open, onOpen, onClose } = useDisclosure();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // When any account page is open (Profile, Plan, Help), keep global left sidebar collapsed by default
+  const accountRoutes = ['/profile', '/plan', '/help'];
+  useEffect(() => {
+    if (accountRoutes.includes(pathname)) {
+      setSidebarCollapsed(true);
+    }
+  }, [pathname]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const { data: basicUserInfo } = useBasicUserInfo();

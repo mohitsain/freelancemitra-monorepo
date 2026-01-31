@@ -17,9 +17,10 @@ import SingleFileUpload from '@/components/ui/single-file-upload';
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
-export default function ExperienceEducationStep({ data, updateData }: Props) {
+export default function ExperienceEducationStep({ data, updateData, invalidFields }: Props) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('gray.50', 'gray.700');
 
@@ -84,7 +85,7 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
   return (
     <Stack direction="column" gap={6} align="stretch">
       {/* Work History Section */}
-      <Box {...cardStyles}>
+      <Box {...cardStyles} {...(invalidFields?.includes('workHistory') ? { borderWidth: '2px', borderColor: 'red.500', _dark: { borderColor: 'red.400' } } : {})}>
         <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
             <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>

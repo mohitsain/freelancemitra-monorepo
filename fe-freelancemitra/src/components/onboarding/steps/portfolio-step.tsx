@@ -15,12 +15,15 @@ import SkillsDropdown from '@/components/ui/skills-dropdown';
 import MultiFileUpload from '@/components/ui/multi-file-upload';
 import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
+const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
+
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
-export default function PortfolioStep({ data, updateData }: Props) {
+export default function PortfolioStep({ data, updateData, invalidFields }: Props) {
   const [skillInput, setSkillInput] = useState('');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('gray.50', 'gray.700');
@@ -66,7 +69,7 @@ export default function PortfolioStep({ data, updateData }: Props) {
   return (
     <Stack direction="column" gap={6} align="stretch">
       {/* Portfolio Links Section */}
-      <Box {...cardStyles}>
+      <Box {...cardStyles} {...(invalidFields?.includes('portfolioLink') ? { borderWidth: '2px', borderColor: 'red.500', _dark: { borderColor: 'red.400' } } : {})}>
         <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
           Portfolio Link (Optional)
         </Text>
@@ -81,11 +84,12 @@ export default function PortfolioStep({ data, updateData }: Props) {
           {...inputSizes}
           {...inputBorderStyles}
           _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+          {...(invalidFields?.includes('portfolioLink') ? invalidBorder : {})}
         />
       </Box>
 
       {/* Work Samples Section */}
-      <Box {...cardStyles}>
+      <Box {...cardStyles} {...(invalidFields?.includes('portfolioSamples') ? { borderWidth: '2px', borderColor: 'red.500', _dark: { borderColor: 'red.400' } } : {})}>
         <HStack justify="space-between" align="flex-start" mb={5} flexWrap="wrap" gap={3}>
           <Box>
             <Text fontWeight="semibold" color="gray.700" _dark={{ color: 'gray.300' }}>

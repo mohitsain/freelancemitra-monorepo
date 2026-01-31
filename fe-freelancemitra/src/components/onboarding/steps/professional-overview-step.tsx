@@ -15,12 +15,15 @@ import SpecializationsDropdown from '@/components/ui/specializations-dropdown';
 import LanguagesDropdown from '@/components/ui/languages-dropdown';
 import { inputBorderStyles, textareaBorderStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
+const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
+
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
-export default function ProfessionalOverviewStep({ data, updateData }: Props) {
+export default function ProfessionalOverviewStep({ data, updateData, invalidFields }: Props) {
   const [skillInput, setSkillInput] = useState('');
   const [specializationInput, setSpecializationInput] = useState('');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -95,6 +98,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
               py={2.5}
               {...textareaBorderStyles}
               _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+              {...(invalidFields?.includes('shortSummary') ? invalidBorder : {})}
             />
           </Box>
           <Box>
@@ -116,7 +120,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
       {/* Areas of Specialization & Key Skills */}
       <Box {...cardStyles}>
         <HStack gap={6} align="stretch" flexWrap="wrap">
-          <Box flex={{ base: '1 1 100%', md: 1 }} minW={{ base: '100%', md: '280px' }}>
+          <Box flex={{ base: '1 1 100%', md: 1 }} minW={{ base: '100%', md: '280px' }} {...(invalidFields?.includes('areasOfSpecialization') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
             <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
               Areas of Specialization <Text {...requiredAsteriskStyles}>*</Text>
             </Text>
@@ -131,7 +135,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
               maxSpecializations={8}
             />
           </Box>
-          <Box flex={{ base: '1 1 100%', md: 1 }} minW={{ base: '100%', md: '280px' }}>
+          <Box flex={{ base: '1 1 100%', md: 1 }} minW={{ base: '100%', md: '280px' }} {...(invalidFields?.includes('keySkills') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
             <Text fontWeight="semibold" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
               Key Skills <Text {...requiredAsteriskStyles}>*</Text>
             </Text>
@@ -170,7 +174,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
                 _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
               />
             </Box>
-            <Box flex={1} minW={0}>
+            <Box flex={1} minW={0} {...(invalidFields?.includes('languagesSpoken') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
               <Text {...labelStyles}>Languages Spoken <Text {...requiredAsteriskStyles}>*</Text></Text>
               <LanguagesDropdown
                 selectedLanguages={data.languagesSpoken ? data.languagesSpoken.split(',').map((s) => s.trim()).filter(Boolean) : []}

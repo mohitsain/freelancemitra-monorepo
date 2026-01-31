@@ -123,8 +123,8 @@ const STEPS = [
   { id: 'review', title: 'Review & Complete', component: ReviewStep },
 ];
 
-/** Strip File from portfolioSamples for API payload */
-function toOnboardingPayload(data: OnboardingData): OnboardingPayload {
+/** Strip File from portfolioSamples for API payload. Exported for profile page. */
+export function toOnboardingPayload(data: OnboardingData): OnboardingPayload {
   return {
     firstName: data.firstName,
     lastName: data.lastName,
@@ -165,8 +165,8 @@ function toOnboardingPayload(data: OnboardingData): OnboardingPayload {
   };
 }
 
-/** Map API payload to full OnboardingData (add uploadFile: null, ensure fileKey). Email and lastStepIndex not in form. */
-function payloadToData(payload: OnboardingPayload): OnboardingData {
+/** Map API payload to full OnboardingData (add uploadFile: null, ensure fileKey). Exported for profile page. */
+export function payloadToData(payload: OnboardingPayload): OnboardingData {
   const { email: _e, lastStepIndex: _s, ...rest } = payload as OnboardingPayload & { email?: string };
   return {
     ...rest,

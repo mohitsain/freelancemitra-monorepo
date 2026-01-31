@@ -13,12 +13,15 @@ import { OnboardingData } from '../onboarding-flow';
 import { inputBorderStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 import CurrencyDropdown from '@/components/ui/currency-dropdown';
 
+const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
+
 interface Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
+  invalidFields?: string[];
 }
 
-export default function AvailabilityRatesStep({ data, updateData }: Props) {
+export default function AvailabilityRatesStep({ data, updateData, invalidFields }: Props) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('gray.50', 'gray.700');
 
@@ -145,6 +148,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
                 {...inputSizes}
                 {...inputBorderStyles}
                 _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                {...(invalidFields?.includes('startDate') ? invalidBorder : {})}
               />
             </Box>
           </HStack>
@@ -161,7 +165,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
         </Text>
         <Stack direction="column" gap={5} align="stretch">
           <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
-            <Box flex={1} minW={0}>
+            <Box flex={1} minW={0} {...(invalidFields?.includes('currency') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>
               <Text {...labelStyles}>Currency <Text {...requiredAsteriskStyles}>*</Text></Text>
               <CurrencyDropdown
                 value={data.currency}
@@ -184,6 +188,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
                 {...inputSizes}
                 {...inputBorderStyles}
                 _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                {...(invalidFields?.includes('hourlyRate') ? invalidBorder : {})}
               />
             </Box>
           </HStack>
@@ -204,6 +209,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
               {...inputSizes}
               {...inputBorderStyles}
               _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...(invalidFields?.includes('projectBasedRate') ? invalidBorder : {})}
             />
           </Box>
 
@@ -218,6 +224,7 @@ export default function AvailabilityRatesStep({ data, updateData }: Props) {
               {...inputSizes}
               {...inputBorderStyles}
               _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...(invalidFields?.includes('retainerRate') ? invalidBorder : {})}
             />
           </Box>
 
