@@ -105,60 +105,6 @@ export default function LanguagesDropdown({
         </Text>
       </Button>
 
-      {selectedLanguages.length > 0 && (
-        <Box mt={3}>
-          <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700" _dark={{ color: 'gray.300' }}>
-            Selected languages:
-          </Text>
-          <Stack direction="row" gap={2} wrap="wrap">
-            {selectedLanguages.map((name) => (
-              <Box
-                key={name}
-                px={3}
-                py={1}
-                bg="teal.100"
-                color="teal.800"
-                borderRadius="full"
-                fontSize="sm"
-                display="flex"
-                alignItems="center"
-                gap={2}
-                border="1px"
-                borderColor="teal.300"
-                _dark={{
-                  bg: 'teal.900',
-                  color: 'teal.200',
-                  borderColor: 'teal.600'
-                }}
-              >
-                <Text>{name}</Text>
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  colorScheme="teal"
-                  onClick={() => handleLanguageRemove(name)}
-                  p={0}
-                  minW="auto"
-                  h="auto"
-                  _hover={{
-                    bg: 'red.100',
-                    color: 'red.600'
-                  }}
-                  _dark={{
-                    _hover: {
-                      bg: 'red.900',
-                      color: 'red.400'
-                    }
-                  }}
-                >
-                  ✕
-                </Button>
-              </Box>
-            ))}
-          </Stack>
-        </Box>
-      )}
-
       {isOpen && (
         <Box
           position="absolute"
@@ -177,6 +123,48 @@ export default function LanguagesDropdown({
           flexDirection="column"
           mt={1}
         >
+          {selectedLanguages.length > 0 && (
+            <Box flexShrink={0} p={2} borderBottom="1px" borderColor={borderColor} bg={hoverBg}>
+              <Stack direction="row" gap={2} wrap="wrap">
+                {selectedLanguages.map((name) => (
+                  <Box
+                    key={name}
+                    px={3}
+                    py={1}
+                    bg="teal.100"
+                    color="teal.800"
+                    borderRadius="full"
+                    fontSize="sm"
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                    border="1px"
+                    borderColor="teal.300"
+                    _dark={{
+                      bg: 'teal.900',
+                      color: 'teal.200',
+                      borderColor: 'teal.600'
+                    }}
+                  >
+                    <Text>{name}</Text>
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      colorScheme="teal"
+                      onClick={(e) => { e.stopPropagation(); handleLanguageRemove(name); }}
+                      p={0}
+                      minW="auto"
+                      h="auto"
+                      _hover={{ bg: 'red.100', color: 'red.600' }}
+                      _dark={{ _hover: { bg: 'red.900', color: 'red.400' } }}
+                    >
+                      ✕
+                    </Button>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          )}
           <Box flexShrink={0} {...dropdownSearchWrapperStyles}>
             <Input
               placeholder="Search languages..."

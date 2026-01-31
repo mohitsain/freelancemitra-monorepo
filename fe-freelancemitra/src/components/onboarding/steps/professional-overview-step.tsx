@@ -171,7 +171,7 @@ export default function ProfessionalOverviewStep({ data, updateData }: Props) {
               />
             </Box>
             <Box flex={1} minW={0}>
-              <Text {...labelStyles}>Languages Spoken (Optional)</Text>
+              <Text {...labelStyles}>Languages Spoken <Text {...requiredAsteriskStyles}>*</Text></Text>
               <LanguagesDropdown
                 selectedLanguages={data.languagesSpoken ? data.languagesSpoken.split(',').map((s) => s.trim()).filter(Boolean) : []}
                 onLanguagesChange={(names) => updateData({ languagesSpoken: names.join(', ') })}

@@ -10,6 +10,7 @@ import {
   Spinner,
   IconButton,
 } from '@chakra-ui/react';
+import { FaSignOutAlt } from 'react-icons/fa';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { ColorModeButton } from '@/components/ui/color-mode';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -475,7 +476,7 @@ export default function OnboardingFlow() {
           <HStack gap={2} flexShrink={0}>
             <Tooltip content="Toggle dark mode">
               <Box as="span" display="inline-block">
-                <ColorModeButton size="sm" variant="outline" aria-label="Toggle theme" />
+                <ColorModeButton size="md" variant="outline" aria-label="Toggle theme" />
               </Box>
             </Tooltip>
             <Tooltip content="Sign Out">
@@ -483,11 +484,10 @@ export default function OnboardingFlow() {
                 aria-label="Sign Out"
                 variant="outline"
                 colorScheme="red"
-                size="sm"
+                size="md"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                fontSize="lg"
               >
-                🚪
+                <FaSignOutAlt size={20} />
               </IconButton>
             </Tooltip>
           </HStack>

@@ -42,6 +42,8 @@ export function getStepValidationErrors(data: OnboardingData, stepIndex: number)
       if (!data.shortSummary?.trim()) errors.push('Short summary / bio is required');
       if (!data.keySkills?.length) errors.push('Add at least one key skill');
       if (!data.areasOfSpecialization?.length) errors.push('Add at least one area of specialization');
+      const languages = (data.languagesSpoken ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+      if (!languages.length) errors.push('Select at least one language spoken');
       break;
     }
     case STEP_PORTFOLIO: {
