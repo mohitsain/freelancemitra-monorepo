@@ -1,0 +1,36 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+*.log
+.DS_Store
