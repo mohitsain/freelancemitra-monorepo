@@ -493,59 +493,73 @@ export default function OnboardingFlow() {
           </HStack>
             </HStack>
 
-            {/* Progress Bar: full width */}
+            {/* Progress Bar: segmented by steps, step no in circle at current segment */}
             <Box
               w="full"
-              bg="gray.100"
-              rounded="full"
-              h="10px"
-              overflow="hidden"
               position="relative"
+              h="40px"
               cursor="pointer"
-              _dark={{ bg: 'gray.700' }}
-              _hover={{
-                transform: 'scale(1.02)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-              }}
-              transition="all 0.3s ease"
-              title={`${progressPercentage}% Complete - Step ${currentStep + 1} of ${STEPS.length}`}
+              title={`Step ${currentStep + 1} of ${STEPS.length}`}
             >
+              <HStack w="full" h="20px" gap="2px" align="stretch" position="absolute" top="50%" left={0} right={0} transform="translateY(-50%)">
+                {Array.from({ length: STEPS.length }, (_, i) => (
+                  <Box
+                    key={i}
+                    flex={1}
+                    minW={0}
+                    h="full"
+                    borderRadius="full"
+                    overflow="hidden"
+                    bg="gray.100"
+                    _dark={{ bg: 'gray.700' }}
+                    position="relative"
+                  >
+                    <Box
+                      w={i <= currentStep ? '100%' : '0%'}
+                      h="full"
+                      bg="linear-gradient(90deg, #48BB78 0%, #38A169 100%)"
+                      transition="width 0.5s ease-in-out"
+                      position="relative"
+                      rounded="full"
+                      boxShadow="0 2px 8px rgba(72, 187, 120, 0.3)"
+                    >
+                      {i === currentStep && (
+                        <Box
+                          position="absolute"
+                          top={0}
+                          left="-100%"
+                          h="full"
+                          w="100%"
+                          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)"
+                          animation="shimmer 2s infinite"
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                ))}
+              </HStack>
               <Box
-                bg="linear-gradient(90deg, #48BB78 0%, #38A169 100%)"
-                h="full"
-                w={`${progressPercentage}%`}
-                transition="all 0.5s ease-in-out"
-                position="relative"
-                rounded="full"
-                boxShadow="0 2px 8px rgba(72, 187, 120, 0.3)"
-                _hover={{
-                  boxShadow: '0 4px 16px rgba(72, 187, 120, 0.4)'
-                }}
+                position="absolute"
+                top="50%"
+                left={`${((currentStep + 0.5) / STEPS.length) * 100}%`}
+                transform="translate(-50%, -50%)"
+                zIndex={2}
+                pointerEvents="none"
+                w="24px"
+                h="24px"
+                borderRadius="full"
+                bg="white"
+                border="2px"
+                borderColor="green.500"
+                boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                _dark={{ bg: 'gray.800', borderColor: 'green.400' }}
               >
-                {/* Animated shimmer effect */}
-                <Box
-                  position="absolute"
-                  top="0"
-                  left="-100%"
-                  h="full"
-                  w="100%"
-                  bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)"
-                  animation="shimmer 2s infinite"
-                />
-                {/* Progress indicator dot */}
-                <Box
-                  position="absolute"
-                  right="1px"
-                  top="50%"
-                  transform="translateY(-50%)"
-                  h="6px"
-                  w="6px"
-                  bg="white"
-                  rounded="full"
-                  boxShadow="0 0 8px rgba(0, 0, 0, 0.3)"
-                  border="2px solid"
-                  borderColor="green.500"
-                />
+                <Text fontSize="xs" fontWeight="bold" color="green.700" _dark={{ color: 'green.300' }}>
+                  {currentStep + 1}
+                </Text>
               </Box>
             </Box>
           </Stack>
