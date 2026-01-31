@@ -184,7 +184,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <Box px={6} py={8} display="flex" justifyContent="center" alignItems="center" minH="200px">
+        <Box display="flex" justifyContent="center" alignItems="center" minH="200px">
           <Spinner size="lg" />
         </Box>
       </DashboardLayout>
@@ -193,7 +193,7 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout>
-      <Box px={{ base: 4, md: 6 }} py={6} display="flex" flexDirection={{ base: "column", lg: "row" }} gap={8}>
+      <Box display="flex" flexDirection={{ base: "column", lg: "row" }} gap={4}>
         {/* Left: sticky bookmarks */}
         <Box
           as="nav"
@@ -249,15 +249,6 @@ export default function ProfilePage() {
         {/* Right: scrollable sections */}
         <Box flex={1} minW={0}>
           <VStack gap={8} align="stretch">
-            <Box>
-              <Heading size="lg" color={textPrimary} mb={1}>
-                Profile
-              </Heading>
-              <Text color={textSecondary} fontSize="sm">
-                View and edit your onboarding information. Use the links on the left to jump to a section.
-              </Text>
-            </Box>
-
             {PROFILE_SECTIONS.map((section, index) => {
               const SectionComponent = SECTION_COMPONENTS[index];
               return (

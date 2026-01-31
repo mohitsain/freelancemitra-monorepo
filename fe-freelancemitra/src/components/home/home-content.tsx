@@ -42,7 +42,7 @@ export default function HomeContent() {
   const features = [
     {
       icon: FaRocket,
-      title: "Portfolio Creation",
+      title: "Portfolio",
       description: "AI-powered portfolio builder with professional templates and optimization",
       color: "blue"
     },

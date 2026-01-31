@@ -11,519 +11,457 @@ import {
   Icon, 
   SimpleGrid, 
   Badge,
-  Progress,
-  Input,
-  InputGroup,
-  InputElement,
-  Select,
-  Textarea
+  Separator,
+  Spinner,
 } from '@chakra-ui/react';
 import { useColorMode } from '@/components/ui/color-mode';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { 
-  FaRocket, 
-  FaPlus, 
-  FaEdit, 
-  FaEye, 
-  FaDownload, 
-  FaShare,
-  FaStar,
-  FaUsers,
-  FaEye as FaViews,
-  FaTrash
+  FaBriefcase,
+  FaMapMarkerAlt,
+  FaLink,
+  FaGraduationCap,
+  FaQuoteLeft,
+  FaGlobe,
+  FaLinkedin,
 } from 'react-icons/fa';
+import { useOnboarding } from '@/hooks/use-onboarding-queries';
+import { payloadToData, type OnboardingData } from '@/components/onboarding/onboarding-flow';
+import { getDisplayUrl } from '@/lib/upload-api';
+import { getCountries, getPhoneCodeByCountryName } from '@/lib/locations-api';
+
+function getDefaultOnboardingData(): OnboardingData {
+  return {
+    firstName: '',
+    lastName: '',
+    professionalTitle: '',
+    countryPhoneCode: '',
+    phoneNumber: '',
+    city: '',
+    state: '',
+    country: '',
+    addressLine1: '',
+    addressLine2: '',
+    postalCode: '',
+    profilePicture: '',
+    headline: '',
+    shortSummary: '',
+    detailedDescription: '',
+    keySkills: [],
+    areasOfSpecialization: [],
+    yearsOfExperience: 0,
+    languagesSpoken: '',
+    portfolioLink: '',
+    portfolioSamples: [
+      { projectTitle: '', client: '', description: '', skillsUsed: [], portfolioLink: '', fileKey: '', uploadFile: null, uploadedFiles: [] },
+    ],
+    workHistory: [{ company: '', jobTitle: '', startDate: '', endDate: '', responsibilities: '' }],
+    education: [{ degree: '', institution: '', graduationYear: '' }],
+    certifications: [{ title: '', description: '', fileKey: '' }],
+    availability: 'full-time',
+    weeklyHours: 40,
+    startDate: '',
+    hourlyRate: 0,
+    projectBasedRate: '',
+    retainerRate: '',
+    currency: 'USD',
+    minProjectSize: '',
+    linkedinUrl: '',
+    otherSocialMedia: '',
+    personalWebsite: '',
+    testimonials: [{ clientName: '', clientTitle: '', testimonial: '', imageKey: '' }],
+  };
+}
+
+function getInitials(data: OnboardingData): string {
+  const first = (data.firstName || '').trim().slice(0, 1);
+  const last = (data.lastName || '').trim().slice(0, 1);
+  if (first || last) return (first + last).toUpperCase();
+  return 'U';
+}
+
+function formatLocation(data: OnboardingData): string {
+  const parts = [data.city, data.state, data.country].filter(Boolean);
+  return parts.join(', ') || '—';
+}
 
 export default function PortfolioCreationPage() {
   const { colorMode } = useColorMode();
-  const router = useRouter();
-  const [userPortfolios, setUserPortfolios] = useState([
-    {
-      id: 1,
-      name: "My Developer Portfolio",
-      category: "Development",
-      status: "Published",
-      lastUpdated: "2 days ago",
-      image: "💻",
-      description: "Full-stack development showcase"
-    },
-    {
-      id: 2,
-      name: "Design Portfolio Draft",
-      category: "Design",
-      status: "Draft",
-      lastUpdated: "1 week ago",
-      image: "🎨",
-      description: "Creative design portfolio"
-    },
-    {
-      id: 3,
-      name: "Marketing Portfolio",
-      category: "Marketing",
-      status: "Published",
-      lastUpdated: "3 days ago",
-      image: "📈",
-      description: "Digital marketing campaigns"
-    },
-    {
-      id: 4,
-      name: "Writing Portfolio",
-      category: "Writing",
-      status: "Draft",
-      lastUpdated: "5 days ago",
-      image: "✍️",
-      description: "Content writing samples"
+  const { data: onboardingPayload, isLoading } = useOnboarding();
+  const [data, setData] = useState<OnboardingData>(getDefaultOnboardingData);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
+  const [sampleImageUrls, setSampleImageUrls] = useState<Record<string, string>>({});
+  const [testimonialImageUrls, setTestimonialImageUrls] = useState<Record<string, string>>({});
+  const [imagesResolving, setImagesResolving] = useState(true);
+
+  useEffect(() => {
+    if (!onboardingPayload) {
+      setData(getDefaultOnboardingData());
+      return;
     }
-  ]);
-  const bgColor = colorMode === "dark" ? "gray.900" : "gray.50";
+    getCountries()
+      .then((list) => {
+        const mapped = payloadToData(onboardingPayload);
+        const code = getPhoneCodeByCountryName(list, mapped.countryPhoneCode);
+        if (code) mapped.countryPhoneCode = code;
+        setData(mapped);
+      })
+      .catch(() => {
+        setData(payloadToData(onboardingPayload));
+      });
+  }, [onboardingPayload]);
+
+  const resolveImageUrls = useCallback(async (d: OnboardingData) => {
+    const profileKey = d.profilePicture?.trim();
+    if (profileKey) {
+      try {
+        const url = await getDisplayUrl(profileKey);
+        setProfilePictureUrl(url);
+      } catch {
+        setProfilePictureUrl(null);
+      }
+    } else {
+      setProfilePictureUrl(null);
+    }
+
+    const sampleUrls: Record<string, string> = {};
+    for (const s of d.portfolioSamples || []) {
+      const keys = s.uploadedFiles?.length ? s.uploadedFiles.map((f) => f.key) : s.fileKey ? [s.fileKey] : [];
+      const firstKey = keys[0];
+      if (firstKey) {
+        try {
+          sampleUrls[firstKey] = await getDisplayUrl(firstKey);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    setSampleImageUrls(sampleUrls);
+
+    const testimonialUrls: Record<string, string> = {};
+    for (const t of d.testimonials || []) {
+      if (t.imageKey?.trim()) {
+        try {
+          testimonialUrls[t.imageKey] = await getDisplayUrl(t.imageKey);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    setTestimonialImageUrls(testimonialUrls);
+  }, []);
+
+  useEffect(() => {
+    const hasImageKeys = !!(data.profilePicture?.trim() || (data.portfolioSamples?.length && data.portfolioSamples.some((s) => s.uploadedFiles?.length || s.fileKey)) || data.testimonials?.some((t) => t.imageKey?.trim()));
+    if (hasImageKeys) {
+      setImagesResolving(true);
+      resolveImageUrls(data).finally(() => setImagesResolving(false));
+    } else {
+      setImagesResolving(false);
+    }
+  }, [data.profilePicture, data.portfolioSamples, data.testimonials, resolveImageUrls]);
+
   const cardBg = colorMode === "dark" ? "gray.800" : "white";
   const borderColor = colorMode === "dark" ? "gray.700" : "gray.200";
   const textPrimary = colorMode === "dark" ? "white" : "gray.800";
-  const textSecondary = colorMode === "dark" ? "gray.300" : "gray.600";
-  const accentBlue = colorMode === "dark" ? "blue.400" : "blue.500";
+  const textSecondary = colorMode === "dark" ? "gray.400" : "gray.600";
+  const accentBlue = colorMode === "dark" ? "blue.400" : "blue.600";
+  const heroBg = colorMode === "dark" ? "linear-gradient(180deg, var(--chakra-colors-gray-800) 0%, var(--chakra-colors-gray-900) 100%)" : "linear-gradient(180deg, var(--chakra-colors-blue-50) 0%, var(--chakra-colors-gray-50) 100%)";
+  const mutedBg = colorMode === "dark" ? "gray.800" : "gray.50";
 
-  const handleUseTemplate = (template: any) => {
-    // Create new portfolio from template
-    const newPortfolio = {
-      id: Date.now(), // Simple ID generation
-      name: `${template.name} Portfolio`,
-      category: template.category,
-      status: "Draft",
-      lastUpdated: "Just now",
-      image: template.image,
-      description: template.description,
-      htmlContent: template.htmlContent
-    };
-    
-    setUserPortfolios(prev => [newPortfolio, ...prev]);
-  };
+  const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ') || 'Your Name';
+  const locationStr = formatLocation(data);
+  const firstSampleImageKey = (s: (typeof data.portfolioSamples)[0]) =>
+    s.uploadedFiles?.length ? s.uploadedFiles[0].key : s.fileKey || '';
 
-  const handlePreviewTemplate = (template: any) => {
-    router.push(`/template-preview?id=${template.id}`);
-  };
-
-
-  const handleEditPortfolio = (portfolio: any) => {
-    router.push(`/portfolio-editor?id=${portfolio.id}`);
-  };
-
-  const handleDeletePortfolio = (portfolioId: number) => {
-    setUserPortfolios(prev => prev.filter(p => p.id !== portfolioId));
-  };
-
-  const portfolioTemplates = [
-    {
-      id: 1,
-      name: "Creative Designer",
-      category: "Design",
-      rating: 4.8,
-      views: 1240,
-      downloads: 89,
-      image: "🎨",
-      description: "Perfect for graphic designers and artists",
-      htmlContent: `
-        <style>
-          h1 { font-size: 24px; font-weight: bold; color: #2d3748; margin-bottom: 8px; }
-          h2 { font-size: 20px; font-weight: bold; color: #2d3748; margin-top: 16px; margin-bottom: 8px; }
-          h3 { font-size: 16px; font-weight: bold; color: #2d3748; margin-bottom: 4px; }
-          p { color: #4a5568; line-height: 1.5; margin-bottom: 8px; }
-          ul { margin-left: 20px; margin-bottom: 8px; }
-          li { color: #4a5568; margin-bottom: 4px; }
-          .tagline { font-size: 18px; color: #4299e1; font-weight: 500; }
-          .intro { font-size: 16px; font-style: italic; color: #718096; }
-        </style>
-        <div class="portfolio-container">
-          <header class="hero-section">
-            <h1>Sarah Johnson</h1>
-            <p class="tagline">Creative Designer & Brand Strategist</p>
-            <p class="intro">Passionate about creating beautiful, functional designs that tell compelling stories and drive business results.</p>
-          </header>
-          
-          <section class="about-section">
-            <h2>About Me</h2>
-            <p>With over 5 years of experience in graphic design and brand development, I specialize in creating visual identities that resonate with target audiences. My work spans across digital and print media, helping businesses establish strong brand presence.</p>
-          </section>
-          
-          <section class="skills-section">
-            <h2>Skills & Expertise</h2>
-            <ul>
-              <li>Brand Identity Design</li>
-              <li>UI/UX Design</li>
-              <li>Print Design</li>
-              <li>Adobe Creative Suite</li>
-              <li>Figma & Sketch</li>
-            </ul>
-          </section>
-          
-          <section class="portfolio-section">
-            <h2>Featured Work</h2>
-            <div class="project-grid">
-              <div class="project-item">
-                <h3>Brand Identity for TechStart</h3>
-                <p>Complete brand identity design including logo, color palette, and brand guidelines.</p>
-              </div>
-              <div class="project-item">
-                <h3>E-commerce Website Design</h3>
-                <p>Modern, responsive design for online fashion retailer with focus on user experience.</p>
-              </div>
-            </div>
-          </section>
-          
-          <section class="contact-section">
-            <h2>Let's Work Together</h2>
-            <p>Ready to bring your vision to life? Let's discuss your project.</p>
-            <p>Email: sarah@designstudio.com</p>
-            <p>Phone: (555) 123-4567</p>
-          </section>
-        </div>
-      `
-    },
-    {
-      id: 2,
-      name: "Tech Developer",
-      category: "Development",
-      rating: 4.9,
-      views: 2156,
-      downloads: 156,
-      image: "💻",
-      description: "Ideal for software developers and engineers",
-      htmlContent: `
-        <style>
-          h1 { font-size: 24px; font-weight: bold; color: #2d3748; margin-bottom: 8px; }
-          h2 { font-size: 20px; font-weight: bold; color: #2d3748; margin-top: 16px; margin-bottom: 8px; }
-          h3 { font-size: 16px; font-weight: bold; color: #2d3748; margin-bottom: 4px; }
-          p { color: #4a5568; line-height: 1.5; margin-bottom: 8px; }
-          ul { margin-left: 20px; margin-bottom: 8px; }
-          li { color: #4a5568; margin-bottom: 4px; }
-          .tagline { font-size: 18px; color: #4299e1; font-weight: 500; }
-          .intro { font-size: 16px; font-style: italic; color: #718096; }
-        </style>
-        <div class="portfolio-container">
-          <header class="hero-section">
-            <h1>Alex Chen</h1>
-            <p class="tagline">Full-Stack Developer & Tech Innovator</p>
-            <p class="intro">Building scalable web applications and mobile solutions with modern technologies. Passionate about clean code and user-centered design.</p>
-          </header>
-          
-          <section class="about-section">
-            <h2>About Me</h2>
-            <p>Experienced full-stack developer with 6+ years building web and mobile applications. I specialize in React, Node.js, and cloud technologies, delivering robust solutions that scale with business growth.</p>
-          </section>
-          
-          <section class="skills-section">
-            <h2>Technical Skills</h2>
-            <ul>
-              <li>Frontend: React, Vue.js, TypeScript</li>
-              <li>Backend: Node.js, Python, PHP</li>
-              <li>Database: PostgreSQL, MongoDB</li>
-              <li>Cloud: AWS, Docker, Kubernetes</li>
-              <li>Mobile: React Native, Flutter</li>
-            </ul>
-          </section>
-          
-          <section class="portfolio-section">
-            <h2>Recent Projects</h2>
-            <div class="project-grid">
-              <div class="project-item">
-                <h3>E-commerce Platform</h3>
-                <p>Built scalable e-commerce solution serving 10,000+ users with React frontend and Node.js backend.</p>
-              </div>
-              <div class="project-item">
-                <h3>Mobile Banking App</h3>
-                <p>Developed secure mobile banking application with React Native and integrated payment processing.</p>
-              </div>
-            </div>
-          </section>
-          
-          <section class="contact-section">
-            <h2>Get In Touch</h2>
-            <p>Interested in working together? Let's discuss your next project.</p>
-            <p>Email: alex@devstudio.com</p>
-            <p>GitHub: github.com/alexchen</p>
-          </section>
-        </div>
-      `
-    },
-    {
-      id: 3,
-      name: "Marketing Expert",
-      category: "Marketing",
-      rating: 4.7,
-      views: 987,
-      downloads: 67,
-      image: "📈",
-      description: "Great for marketers and consultants",
-      htmlContent: `
-        <style>
-          h1 { font-size: 24px; font-weight: bold; color: #2d3748; margin-bottom: 8px; }
-          h2 { font-size: 20px; font-weight: bold; color: #2d3748; margin-top: 16px; margin-bottom: 8px; }
-          h3 { font-size: 16px; font-weight: bold; color: #2d3748; margin-bottom: 4px; }
-          p { color: #4a5568; line-height: 1.5; margin-bottom: 8px; }
-          ul { margin-left: 20px; margin-bottom: 8px; }
-          li { color: #4a5568; margin-bottom: 4px; }
-          .tagline { font-size: 18px; color: #4299e1; font-weight: 500; }
-          .intro { font-size: 16px; font-style: italic; color: #718096; }
-        </style>
-        <div class="portfolio-container">
-          <header class="hero-section">
-            <h1>Michael Rodriguez</h1>
-            <p class="tagline">Digital Marketing Strategist & Growth Expert</p>
-            <p class="intro">Driving business growth through data-driven marketing strategies and innovative campaigns that deliver measurable results.</p>
-          </header>
-          
-          <section class="about-section">
-            <h2>About Me</h2>
-            <p>Marketing professional with 7+ years of experience in digital marketing, brand strategy, and business development. I help companies increase their online presence and drive sustainable growth.</p>
-          </section>
-          
-          <section class="skills-section">
-            <h2>Marketing Expertise</h2>
-            <ul>
-              <li>Digital Marketing Strategy</li>
-              <li>Social Media Management</li>
-              <li>SEO & Content Marketing</li>
-              <li>Email Marketing Campaigns</li>
-              <li>Analytics & Performance Tracking</li>
-            </ul>
-          </section>
-          
-          <section class="portfolio-section">
-            <h2>Success Stories</h2>
-            <div class="project-grid">
-              <div class="project-item">
-                <h3>SaaS Company Growth</h3>
-                <p>Increased monthly recurring revenue by 300% through targeted digital marketing campaigns and conversion optimization.</p>
-              </div>
-              <div class="project-item">
-                <h3>E-commerce Brand Launch</h3>
-                <p>Successfully launched new e-commerce brand, achieving 50,000+ followers across social platforms in 6 months.</p>
-              </div>
-            </div>
-          </section>
-          
-          <section class="contact-section">
-            <h2>Ready to Grow?</h2>
-            <p>Let's discuss how I can help accelerate your business growth.</p>
-            <p>Email: michael@marketingpro.com</p>
-            <p>LinkedIn: linkedin.com/in/michaelrodriguez</p>
-          </section>
-        </div>
-      `
-    },
-    {
-      id: 4,
-      name: "Writer Portfolio",
-      category: "Writing",
-      rating: 4.6,
-      views: 756,
-      downloads: 43,
-      image: "✍️",
-      description: "Perfect for content writers and authors",
-      htmlContent: `
-        <style>
-          h1 { font-size: 24px; font-weight: bold; color: #2d3748; margin-bottom: 8px; }
-          h2 { font-size: 20px; font-weight: bold; color: #2d3748; margin-top: 16px; margin-bottom: 8px; }
-          h3 { font-size: 16px; font-weight: bold; color: #2d3748; margin-bottom: 4px; }
-          p { color: #4a5568; line-height: 1.5; margin-bottom: 8px; }
-          ul { margin-left: 20px; margin-bottom: 8px; }
-          li { color: #4a5568; margin-bottom: 4px; }
-          .tagline { font-size: 18px; color: #4299e1; font-weight: 500; }
-          .intro { font-size: 16px; font-style: italic; color: #718096; }
-        </style>
-        <div class="portfolio-container">
-          <header class="hero-section">
-            <h1>Emma Thompson</h1>
-            <p class="tagline">Content Writer & Storyteller</p>
-            <p class="intro">Crafting compelling content that engages audiences and drives action. Specializing in blog posts, web copy, and marketing content.</p>
-          </header>
-          
-          <section class="about-section">
-            <h2>About Me</h2>
-            <p>Professional content writer with 4+ years of experience creating engaging copy for businesses across various industries. I help brands connect with their audience through powerful storytelling.</p>
-          </section>
-          
-          <section class="skills-section">
-            <h2>Writing Services</h2>
-            <ul>
-              <li>Blog Posts & Articles</li>
-              <li>Website Copy</li>
-              <li>Marketing Materials</li>
-              <li>Social Media Content</li>
-              <li>Email Campaigns</li>
-            </ul>
-          </section>
-          
-          <section class="portfolio-section">
-            <h2>Writing Samples</h2>
-            <div class="project-grid">
-              <div class="project-item">
-                <h3>Tech Blog Series</h3>
-                <p>Created 20+ blog posts for SaaS company, increasing organic traffic by 150% and improving user engagement.</p>
-              </div>
-              <div class="project-item">
-                <h3>Brand Voice Development</h3>
-                <p>Developed comprehensive brand voice guidelines and content strategy for startup, establishing consistent messaging across all channels.</p>
-              </div>
-            </div>
-          </section>
-          
-          <section class="contact-section">
-            <h2>Let's Create Together</h2>
-            <p>Ready to elevate your content? Let's discuss your writing needs.</p>
-            <p>Email: emma@contentwriter.com</p>
-            <p>Portfolio: emmathompsonwriter.com</p>
-          </section>
-        </div>
-      `
-    }
-  ];
+  if (isLoading || imagesResolving) {
+    return (
+      <DashboardLayout>
+        <Box
+          px={{ base: 4, md: 6 }}
+          py={10}
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          minH="70vh"
+          w="full"
+        >
+          <Spinner size="xl" color={accentBlue} thickness="3px" />
+          <Text color={textSecondary} fontSize="sm" mt={4}>
+            Loading portfolio…
+          </Text>
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      <Box px={6}>
-        <VStack gap={8} align="stretch">
-        {/* Header */}
-        <Box>
-          <HStack gap={4} mb={4}>
-            <Icon as={FaRocket} color={accentBlue} fontSize="2xl" />
-            <Heading size="lg" color={textPrimary}>Portfolio Creation</Heading>
-          </HStack>
-          <Text color={textSecondary} fontSize="lg">
-            Create stunning portfolios to showcase your work and attract clients
-          </Text>
-        </Box>
+      <Box>
+        <VStack gap={3} align="stretch">
+        {/* Portfolio view from onboarding data */}
+        <Box
+          bg={cardBg}
+          borderWidth="1px"
+          borderColor={borderColor}
+          borderRadius="2xl"
+          overflow="hidden"
+          boxShadow={colorMode === 'dark' ? 'lg' : 'sm'}
+        >
+          {/* Hero */}
+          <Box bg={heroBg} py={4} px={5}>
+            <VStack gap={3} maxW="4xl" mx="auto">
+              <Box
+                w="120px"
+                h="120px"
+                borderRadius="full"
+                overflow="hidden"
+                flexShrink={0}
+                borderWidth="4px"
+                borderColor={cardBg}
+                boxShadow="lg"
+              >
+                {profilePictureUrl ? (
+                  <Box as="img" src={profilePictureUrl} alt="" w="full" h="full" objectFit="cover" loading="lazy" />
+                ) : (
+                  <Box w="full" h="full" bg={accentBlue} color="white" display="flex" alignItems="center" justifyContent="center" fontSize="3xl" fontWeight="bold">
+                    {getInitials(data)}
+                  </Box>
+                )}
+              </Box>
+              <VStack gap={1}>
+                <Heading size="xl" color={textPrimary}>{fullName}</Heading>
+                {(data.professionalTitle || data.headline) && (
+                  <Text color={accentBlue} fontSize="lg" fontWeight="semibold">
+                    {data.professionalTitle || data.headline}
+                  </Text>
+                )}
+                {data.headline && data.professionalTitle !== data.headline && (
+                  <Text color={textSecondary} fontSize="md" textAlign="center" maxW="2xl">
+                    {data.headline}
+                  </Text>
+                )}
+                {locationStr && locationStr !== '—' && (
+                  <HStack gap={2} color={textSecondary} fontSize="sm">
+                    <Icon as={FaMapMarkerAlt} />
+                    <Text>{locationStr}</Text>
+                  </HStack>
+                )}
+              </VStack>
+            </VStack>
+          </Box>
 
-        {/* Templates Section */}
-        <Box>
-          <HStack justify="space-between" mb={6}>
-            <Heading size="md" color={textPrimary}>Popular Templates</Heading>
-            <Button variant="outline" size="sm">View All</Button>
-          </HStack>
-          
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
-            {portfolioTemplates.map((template) => (
-              <Box key={template.id} bg={cardBg} border="1px" borderColor={borderColor} borderRadius="lg" p={6} _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }} transition="all 0.2s">
-                <VStack gap={3} align="stretch">
-                  <VStack gap={2}>
-                    <Text fontSize="4xl">{template.image}</Text>
-                    <Badge colorScheme="blue" variant="subtle">{template.category}</Badge>
-                  </VStack>
-                  
-                  <Text fontWeight="bold" color={textPrimary} fontSize="lg">{template.name}</Text>
-                  <Text fontSize="sm" color={textSecondary} textAlign="center">{template.description}</Text>
-                  
-                  <HStack justify="space-between" fontSize="sm">
-                    <HStack gap={1}>
-                      <Icon as={FaStar} color="yellow.400" />
-                      <Text color={textSecondary}>{template.rating}</Text>
-                    </HStack>
-                    <HStack gap={1}>
-                      <Icon as={FaViews} color={textSecondary} />
-                      <Text color={textSecondary}>{template.views}</Text>
-                    </HStack>
-                  </HStack>
-                  
-                  <HStack gap={2}>
-                    <Button 
-                      size="sm" 
-                      colorScheme="blue" 
-                      flex={1}
-                      onClick={() => handleUseTemplate(template)}
-                    >
-                      Use Template
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      flex={1}
-                      onClick={() => handlePreviewTemplate(template)}
-                    >
-                      Preview
-                    </Button>
-                  </HStack>
+          <Box px={5} py={3}>
+            {/* About */}
+            {(data.shortSummary || data.detailedDescription) && (
+              <Box mb={5}>
+                <Heading size="md" color={textPrimary} mb={2}>About</Heading>
+                <VStack align="stretch" gap={3}>
+                  {data.shortSummary && (
+                    <Text color={textPrimary} lineHeight="tall">{data.shortSummary}</Text>
+                  )}
+                  {data.detailedDescription && (
+                    <Text color={textSecondary} fontSize="sm" whiteSpace="pre-wrap">{data.detailedDescription}</Text>
+                  )}
                 </VStack>
               </Box>
-            ))}
-          </SimpleGrid>
-        </Box>
+            )}
 
-        {/* User Portfolios Section */}
-        <Box>
-          <HStack justify="space-between" mb={6}>
-            <Heading size="md" color={textPrimary}>Your Portfolios</Heading>
-            <Button 
-              colorScheme="blue" 
-              size="sm" 
-              onClick={() => router.push('/ai-proposal-builder')}
-            >
-              <Icon as={FaPlus} mr={2} />
-              Add New Portfolio
-            </Button>
-          </HStack>
-          
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-            {userPortfolios.map((portfolio) => (
-              <Box key={portfolio.id} bg={cardBg} border="1px" borderColor={borderColor} borderRadius="lg" p={6} _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }} transition="all 0.2s">
-                <VStack gap={4} align="stretch">
-                  <HStack justify="space-between">
-                    <VStack gap={2} align="start">
-                      <Text fontSize="3xl">{portfolio.image}</Text>
-                      <Badge 
-                        colorScheme={portfolio.status === "Published" ? "green" : "yellow"} 
-                        variant="subtle"
-                      >
-                        {portfolio.status}
-                      </Badge>
-                    </VStack>
-                    <HStack gap={2}>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        colorScheme="blue"
-                        onClick={() => handleEditPortfolio(portfolio)}
-                      >
-                        <Icon as={FaEdit} />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        colorScheme="red"
-                        onClick={() => handleDeletePortfolio(portfolio.id)}
-                      >
-                        <Icon as={FaTrash} />
-                      </Button>
-                    </HStack>
-                  </HStack>
-                  
-                  <VStack gap={2} align="stretch">
-                    <Text fontWeight="bold" color={textPrimary} fontSize="lg">{portfolio.name}</Text>
-                    <Text fontSize="sm" color={textSecondary}>{portfolio.description}</Text>
-                    <Text fontSize="xs" color={textSecondary}>
-                      Last updated: {portfolio.lastUpdated}
-                    </Text>
-                  </VStack>
-                  
+            {/* Skills */}
+            {((data.keySkills?.length ?? 0) > 0 || (data.areasOfSpecialization?.length ?? 0) > 0) && (
+              <Box mb={5}>
+                <Heading size="md" color={textPrimary} mb={2}>Skills &amp; expertise</Heading>
+                <HStack flexWrap="wrap" gap={2}>
+                  {(data.keySkills || []).map((skill, i) => (
+                    <Badge key={`skill-${i}`} colorScheme="blue" variant="subtle" px={3} py={1} fontSize="sm">
+                      {skill}
+                    </Badge>
+                  ))}
+                  {(data.areasOfSpecialization || []).map((area, i) => (
+                    <Badge key={`area-${i}`} colorScheme="gray" variant="subtle" px={3} py={1} fontSize="sm">
+                      {area}
+                    </Badge>
+                  ))}
+                </HStack>
+              </Box>
+            )}
+
+            {/* Experience */}
+            {(data.workHistory?.length ?? 0) > 0 && data.workHistory.some((w) => w.company || w.jobTitle) && (
+              <Box mb={5}>
+                <Heading size="md" color={textPrimary} mb={2}>
                   <HStack gap={2}>
-                    <Button size="sm" colorScheme="blue" flex={1}>
-                      <Icon as={FaEye} mr={2} />
-                      View
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      flex={1}
-                      onClick={() => handleEditPortfolio(portfolio)}
-                    >
-                      <Icon as={FaEdit} mr={2} />
-                      Edit
-                    </Button>
+                    <Icon as={FaBriefcase} color={accentBlue} />
+                    <span>Experience</span>
                   </HStack>
+                </Heading>
+                <VStack align="stretch" gap={4}>
+                  {data.workHistory.filter((w) => w.company || w.jobTitle).map((work, i) => (
+                    <Box key={i} bg={mutedBg} borderRadius="lg" p={4} borderLeftWidth="4px" borderLeftColor={accentBlue}>
+                      <Text fontWeight="bold" color={textPrimary}>{work.jobTitle}{work.company ? ` · ${work.company}` : ''}</Text>
+                      {(work.startDate || work.endDate) && (
+                        <Text fontSize="sm" color={textSecondary}>
+                          {work.startDate} – {work.endDate || 'Present'}
+                        </Text>
+                      )}
+                      {work.responsibilities && (
+                        <Text fontSize="sm" color={textSecondary} mt={2} whiteSpace="pre-wrap">{work.responsibilities}</Text>
+                      )}
+                    </Box>
+                  ))}
                 </VStack>
               </Box>
-            ))}
-          </SimpleGrid>
-        </Box>
+            )}
 
+            {/* Education */}
+            {(data.education?.length ?? 0) > 0 && data.education.some((e) => e.degree || e.institution) && (
+              <Box mb={5}>
+                <Heading size="md" color={textPrimary} mb={2}>
+                  <HStack gap={2}>
+                    <Icon as={FaGraduationCap} color={accentBlue} />
+                    <span>Education</span>
+                  </HStack>
+                </Heading>
+                <VStack align="stretch" gap={3}>
+                  {data.education.filter((e) => e.degree || e.institution).map((edu, i) => (
+                    <Box key={i} bg={mutedBg} borderRadius="lg" p={4}>
+                      <Text fontWeight="semibold" color={textPrimary}>{edu.degree}{edu.institution ? ` · ${edu.institution}` : ''}</Text>
+                      {edu.graduationYear && (
+                        <Text fontSize="sm" color={textSecondary}>{edu.graduationYear}</Text>
+                      )}
+                    </Box>
+                  ))}
+                </VStack>
+              </Box>
+            )}
+
+            {/* Portfolio samples */}
+            {(data.portfolioSamples?.length ?? 0) > 0 && data.portfolioSamples.some((s) => s.projectTitle || s.description) && (
+              <Box mb={5}>
+                <Heading size="md" color={textPrimary} mb={2}>Work samples</Heading>
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+                  {data.portfolioSamples.filter((s) => s.projectTitle || s.description).map((sample, i) => {
+                    const imgKey = firstSampleImageKey(sample);
+                    const imgUrl = imgKey ? sampleImageUrls[imgKey] : null;
+                    return (
+                      <Box key={i} bg={mutedBg} borderRadius="lg" overflow="hidden" borderWidth="1px" borderColor={borderColor}>
+                        {imgUrl && (
+                          <Box aspectRatio={16 / 10} bg="gray.200" overflow="hidden">
+                            <Box as="img" src={imgUrl} alt="" w="full" h="full" objectFit="cover" loading="lazy" />
+                          </Box>
+                        )}
+                        <Box p={4}>
+                          <Text fontWeight="bold" color={textPrimary} fontSize="lg">{sample.projectTitle || 'Project'}</Text>
+                          {sample.client && (
+                            <Text fontSize="sm" color={textSecondary}>Client: {sample.client}</Text>
+                          )}
+                          {sample.description && (
+                            <Text fontSize="sm" color={textSecondary} mt={2} noOfLines={3}>{sample.description}</Text>
+                          )}
+                          {(sample.skillsUsed?.length ?? 0) > 0 && (
+                            <Box mt={3} display="flex" flexWrap="wrap" gap={2} alignItems="center">
+                              {sample.skillsUsed.slice(0, 6).map((sk, j) => (
+                                <Badge key={j} variant="subtle" colorScheme="gray" px={2} py={1} borderRadius="md" fontSize="xs" fontWeight="medium">
+                                  {sk}
+                                </Badge>
+                              ))}
+                            </Box>
+                          )}
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </SimpleGrid>
+              </Box>
+            )}
+
+            {/* Testimonials */}
+            {(data.testimonials?.length ?? 0) > 0 && data.testimonials.some((t) => t.testimonial || t.clientName) && (
+              <Box mb={5}>
+                <Heading size="md" color={textPrimary} mb={2}>
+                  <HStack gap={2}>
+                    <Icon as={FaQuoteLeft} color={accentBlue} />
+                    <span>Testimonials</span>
+                  </HStack>
+                </Heading>
+                <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                  {data.testimonials.filter((t) => t.testimonial || t.clientName).map((t, i) => (
+                    <Box key={i} bg={mutedBg} borderRadius="lg" p={5} borderLeftWidth="4px" borderLeftColor={accentBlue}>
+                      <Text color={textPrimary} fontSize="sm" fontStyle="italic" mb={4}>"{t.testimonial}"</Text>
+                      <VStack align="stretch" gap={3}>
+                        {(t.imageKey && testimonialImageUrls[t.imageKey]) ? (
+                          <Box borderRadius="md" overflow="hidden" maxW="full" aspectRatio={16 / 10}>
+                            <Box as="img" src={testimonialImageUrls[t.imageKey]} alt="Testimonial" w="full" h="full" objectFit="cover" loading="lazy" />
+                          </Box>
+                        ) : null}
+                        <VStack align="start" gap={0}>
+                          <Text fontWeight="semibold" color={textPrimary} fontSize="sm">{t.clientName}</Text>
+                          {t.clientTitle && <Text fontSize="xs" color={textSecondary}>{t.clientTitle}</Text>}
+                        </VStack>
+                      </VStack>
+                    </Box>
+                  ))}
+                </SimpleGrid>
+              </Box>
+            )}
+
+            {/* Social & contact */}
+            {(data.linkedinUrl || data.otherSocialMedia || data.personalWebsite || data.portfolioLink) && (
+              <>
+                <Separator my={8} />
+                <Heading size="md" color={textPrimary} mb={2}>
+                  <HStack gap={2}>
+                    <Icon as={FaGlobe} color={accentBlue} />
+                    <span>Connect</span>
+                  </HStack>
+                </Heading>
+                <HStack flexWrap="wrap" gap={4}>
+                  {data.linkedinUrl && (
+                    <Link href={data.linkedinUrl.startsWith('http') ? data.linkedinUrl : `https://${data.linkedinUrl}`} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" leftIcon={<FaLinkedin />} variant="outline" colorScheme="blue">
+                        LinkedIn
+                      </Button>
+                    </Link>
+                  )}
+                  {data.personalWebsite && (
+                    <Link href={data.personalWebsite.startsWith('http') ? data.personalWebsite : `https://${data.personalWebsite}`} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" leftIcon={<FaGlobe />} variant="outline" colorScheme="gray">
+                        Website
+                      </Button>
+                    </Link>
+                  )}
+                  {data.portfolioLink && (
+                    <Link href={data.portfolioLink.startsWith('http') ? data.portfolioLink : `https://${data.portfolioLink}`} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" leftIcon={<FaLink />} variant="outline" colorScheme="gray">
+                        Portfolio
+                      </Button>
+                    </Link>
+                  )}
+                  {data.otherSocialMedia && (
+                    <Text fontSize="sm" color={textSecondary}>{data.otherSocialMedia}</Text>
+                  )}
+                </HStack>
+              </>
+            )}
+
+            {/* Availability & rates summary */}
+            {(data.availability || data.hourlyRate > 0 || data.currency) && (
+              <Box mt={8} p={4} bg={mutedBg} borderRadius="lg">
+                <Heading size="sm" color={textPrimary} mb={3}>Availability &amp; rates</Heading>
+                <VStack align="stretch" gap={1} fontSize="sm">
+                  {data.availability && (
+                    <Text color={textSecondary}>Availability: <Text as="span" color={textPrimary} fontWeight="medium">{data.availability.replace(/-/g, ' ')}</Text></Text>
+                  )}
+                  {data.hourlyRate > 0 && (
+                    <Text color={textSecondary}>Hourly rate: <Text as="span" color={textPrimary} fontWeight="medium">{data.currency} {data.hourlyRate}</Text></Text>
+                  )}
+                </VStack>
+              </Box>
+            )}
+          </Box>
+        </Box>
 
       </VStack>
       </Box>

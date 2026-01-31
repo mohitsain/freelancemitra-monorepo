@@ -80,16 +80,6 @@ export default function PlanPage() {
     <DashboardLayout>
       <Box px={6} py={6}>
         <VStack gap={10} align="stretch">
-          <VStack gap={2} align="start">
-            <Heading size="lg" color={textPrimary}>
-              Subscription plans
-            </Heading>
-            <Text color={textSecondary} fontSize="lg">
-              Choose the plan that fits your freelancing journey. Upgrade or
-              downgrade anytime.
-            </Text>
-          </VStack>
-
           <SimpleGrid
             columns={{ base: 1, md: 3 }}
             gap={6}

@@ -46,15 +46,6 @@ export default function HelpPage() {
     <DashboardLayout>
       <Container maxW="4xl" py={8}>
         <VStack align="stretch" gap={8}>
-          <VStack align="start" gap={2}>
-            <Heading size="lg" color={textPrimary}>
-              Help
-            </Heading>
-            <Text color={textSecondary} fontSize="md">
-              Find answers and get support for FreelanceMitra.
-            </Text>
-          </VStack>
-
           <VStack align="stretch" gap={4}>
             <Box
               p={6}

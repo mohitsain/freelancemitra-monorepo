@@ -170,7 +170,7 @@ interface DashboardLayoutProps {
 
 const GENERAL_ITEMS = [
   { name: 'Dashboard', icon: FaChartLine, route: '/', subItems: undefined },
-  { name: 'Portfolio Creation', icon: FaRocket, route: '/portfolio-creation', subItems: ['Templates', 'AI Builder', 'Customization'] },
+  { name: 'Portfolio', icon: FaRocket, route: '/portfolio-creation', subItems: ['Templates', 'AI Builder', 'Customization'] },
   { name: 'Proposal Building', icon: FaFileAlt, route: '/proposal-building', subItems: ['AI Generator', 'Templates', 'Analytics'] },
   { name: 'Project Creation', icon: FaBriefcase, route: '/project-creation', subItems: ['Project Setup', 'Timeline', 'Milestones'] },
   { name: 'Lead Management', icon: FaUserTie, route: '/lead-management', subItems: ['Lead Scoring', 'CRM', 'Follow-ups'] },
@@ -642,7 +642,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Box
         ml={{ base: 0, lg: sidebarCollapsed ? "80px" : "280px" }}
         mt="80px"
-        p={6}
+        px={{ base: 3, md: 4 }}
+        py={2}
         transition="margin-left 0.3s ease"
       >
         {children}
