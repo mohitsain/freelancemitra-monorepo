@@ -103,6 +103,55 @@ The frontend (`fe-freelancemitra`) uses NextAuth with Google/GitHub and JWT sess
 
 The proxy route (`/api/backend/[...path]`) uses `getToken({ req, secret, raw: true })` to get the JWT and forwards it to the backend. The backend verifies the same JWT using `NEXTAUTH_SECRET` and creates/returns the user.
 
+## Temporal (workflows)
+
+Workflows and activities run via [Temporal](https://temporal.io). The API can **start** workflows; a separate **worker** process executes them.
+
+### 1. Use your existing Postgres
+
+Create two databases in your existing Postgres (e.g. with `psql` or any client):
+
+```sql
+CREATE DATABASE temporal;
+CREATE DATABASE temporal_visibility;
+```
+
+### 2. Start Temporal server (local)
+
+From the monorepo root, set env (or add a `.env` in the monorepo root) and start:
+
+```bash
+# Optional: set in .env at monorepo root (or export)
+# TEMPORAL_POSTGRES_SEEDS=host.docker.internal   # Postgres on host (Mac/Win)
+# TEMPORAL_POSTGRES_SEEDS=172.17.0.1            # Postgres on host (Linux)
+# TEMPORAL_POSTGRES_USER=postgres
+# TEMPORAL_POSTGRES_PWD=postgres
+# TEMPORAL_POSTGRES_PORT=5432
+# TEMPORAL_DBNAME=temporal
+# TEMPORAL_VISIBILITY_DBNAME=temporal_visibility
+
+docker compose -f docker-compose.temporal.yml up -d
+```
+
+Temporal listens on port **7233**. It uses your existing Postgres (default: `host.docker.internal:5432`; on Linux use your host IP or a Postgres hostname).
+
+### 3. Run the worker
+
+From `be-freelancemitra` (with venv activated):
+
+```bash
+python -m app.temporal.worker
+```
+
+Keep this running so workflows and activities are processed.
+
+### 4. Start workflows from the API
+
+- `POST /api/v1/workflows/greet/start` — body: `{"name": "World"}` → starts `GreetWorkflow`
+- `POST /api/v1/workflows/notify/start` — body: `{"user_id": "...", "message": "..."}` → starts `NotifyWorkflow`
+
+Optional env (see `.env.example`): `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`, `TEMPORAL_TASK_QUEUE`. Defaults: `localhost:7233`, `default`, `freelancemitra-task-queue`.
+
 ## Folder structure
 
 ```
@@ -153,6 +202,8 @@ be-freelancemitra/
 | Locations  | GET    | `/api/v1/countries/{code}/states` | List states for country (no auth) |
 | Upload     | POST   | `/api/v1/upload/presigned-url`    | Get presigned PUT URL for S3 upload |
 | Upload     | GET    | `/api/v1/upload/display-url?key=...` | Get presigned GET URL for S3 object |
+| Workflows  | POST   | `/api/v1/workflows/greet/start`      | Start Greet workflow (body: `{"name": "..."}`) |
+| Workflows  | POST   | `/api/v1/workflows/notify/start`     | Start Notify workflow (body: `{"user_id", "message"}`) |
 
 Locations endpoints are **public** (no auth). All other endpoints above require `Authorization: Bearer <NextAuth JWT>` (or `next-auth.session-token` cookie).
 

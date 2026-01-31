@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     aws_profile: Optional[str] = None  # e.g. mohit.kumar for local CLI profile
     s3_bucket: str = "freelancemitra"
 
+    # Temporal
+    temporal_address: str = "localhost:7233"
+    temporal_namespace: str = "default"
+    temporal_task_queue: str = "freelancemitra-task-queue"
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -1,0 +1,24 @@
+# Temporal server for local development.
+# Uses your existing Postgres: create DBs "temporal" and "temporal_visibility", then set env below.
+#
+# Start: docker compose -f docker-compose.temporal.yml up -d
+# Stop:  docker compose -f docker-compose.temporal.yml down
+#
+# Then run the worker: cd be-freelancemitra && python -m app.temporal.worker
+# Backend connects to temporal at localhost:7233 (default).
+
+services:
+  temporal:
+    image: temporalio/auto-setup:latest
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=${TEMPORAL_POSTGRES_PORT:-5432}
+      - POSTGRES_SEEDS=${TEMPORAL_POSTGRES_SEEDS:-host.docker.internal}
+      - POSTGRES_USER=${TEMPORAL_POSTGRES_USER:-postgres}
+      - POSTGRES_PWD=${TEMPORAL_POSTGRES_PWD:-postgres}
+      - DBNAME=${TEMPORAL_DBNAME:-temporal}
+      - VISIBILITY_DBNAME=${TEMPORAL_VISIBILITY_DBNAME:-temporal_visibility}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

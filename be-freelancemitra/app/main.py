@@ -64,6 +64,10 @@ OPENAPI_TAGS = [
         "name": "masters",
         "description": "Skills and specializations master data (public, no authentication required).",
     },
+    {
+        "name": "workflows",
+        "description": "Start Temporal workflows (greet, notify). Requires Temporal server and worker.",
+    },
 ]
 
 app = FastAPI(
