@@ -95,6 +95,9 @@ async def upsert_onboarding(
     )
     ob = result.scalar_one_or_none()
     attrs = _payload_to_attrs(payload)
+    # Never save presigned URL: store S3 key only; create URL at runtime
+    if attrs.get("profile_picture", "").startswith(("http://", "https://")):
+        attrs["profile_picture"] = ob.profile_picture if ob else ""
     if user and user.email:
         attrs["email"] = user.email
     if ob:

@@ -28,3 +28,12 @@ class UserResponse(BaseModel):
     onboarding_completed_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+class BasicUserInfo(BaseModel):
+    """Basic user info for header/sidebar - from user + onboarding (profile picture from onboarding)."""
+
+    name: str
+    email: str | None
+    profile_picture_url: str | None
+    role: str

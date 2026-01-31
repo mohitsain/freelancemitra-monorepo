@@ -1,10 +1,11 @@
-"""Onboarding endpoints - submit and get onboarding data."""
+"""Onboarding endpoints - submit and get onboarding data.
+   Profile picture and file keys are stored as S3 paths only; create presigned URLs at runtime when displaying.
+"""
 from fastapi import APIRouter, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import NextAuthPayload, get_current_user_payload
-from app.core.s3 import generate_presigned_display_url, is_user_file_key
 from app.database import get_db
 from app.schemas.onboarding import (
     OnboardingCreate,
@@ -16,16 +17,6 @@ from app.services.user import user_service
 from app.services.onboarding import onboarding_service
 
 router = APIRouter()
-
-
-def _response_with_file_urls(resp: OnboardingResponse) -> OnboardingResponse:
-    """Replace profile_picture S3 key with presigned GET URL for display."""
-    if not resp.profile_picture or not is_user_file_key(resp.profile_picture):
-        return resp
-    url = generate_presigned_display_url(resp.profile_picture)
-    if url:
-        return resp.model_copy(update={"profile_picture": url})
-    return resp
 
 
 @router.get("/status", response_model=ApiResponse[OnboardingStatus])
@@ -44,12 +35,10 @@ async def get_onboarding(
     db: AsyncSession = Depends(get_db),
     payload: NextAuthPayload = Depends(get_current_user_payload),
 ):
-    """Get onboarding data for current user. Returns null if not submitted yet."""
+    """Get onboarding data for current user. Returns null if not submitted yet. profile_picture is S3 key; create display URL at runtime."""
     user = await user_service.get_or_create(db, payload)
     ob = await onboarding_service.get_by_user_id(db, user.id)
     data = onboarding_service.to_response(ob) if ob else None
-    if data:
-        data = _response_with_file_urls(data)
     return ApiResponse(success=True, data=data)
 
 
@@ -69,7 +58,7 @@ async def submit_onboarding(
     )
     await db.refresh(ob)  # load server-generated fields (e.g. updated_at) in async context
     resp = onboarding_service.to_response(ob)
-    return ApiResponse(success=True, data=_response_with_file_urls(resp))
+    return ApiResponse(success=True, data=resp)
 
 
 @router.patch("", response_model=ApiResponse[OnboardingResponse])
@@ -78,7 +67,7 @@ async def update_onboarding(
     db: AsyncSession = Depends(get_db),
     payload: NextAuthPayload = Depends(get_current_user_payload),
 ):
-    """Update onboarding data (partial update via same payload)."""
+    """Update onboarding data (partial update via same payload). profile_picture stored as S3 key only."""
     user = await user_service.get_or_create(db, payload)
     ob = await onboarding_service.upsert(
         db,
@@ -88,4 +77,4 @@ async def update_onboarding(
     )
     await db.refresh(ob)  # load server-generated fields (e.g. updated_at) in async context
     resp = onboarding_service.to_response(ob)
-    return ApiResponse(success=True, data=_response_with_file_urls(resp))
+    return ApiResponse(success=True, data=resp)

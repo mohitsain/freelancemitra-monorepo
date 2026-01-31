@@ -1,12 +1,14 @@
-"""User service - get or create from SSO."""
+"""User service - get or create from SSO; basic user info for header/sidebar."""
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import NextAuthPayload, get_provider_user_id
+from app.core.s3 import generate_presigned_display_url, is_user_file_key
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import BasicUserInfo, UserCreate, UserResponse
+from app.services.onboarding import onboarding_service
 
 
 async def get_or_create_user(
@@ -59,6 +61,28 @@ async def get_user_by_id(db: AsyncSession, user_id: UUID) -> User | None:
     return result.scalar_one_or_none()
 
 
+async def get_basic_user_info(db: AsyncSession, user: User) -> BasicUserInfo:
+    """Build basic user info from user + onboarding (profile picture from onboarding)."""
+    ob = await onboarding_service.get_by_user_id(db, user.id)
+    # Name: prefer onboarding first_name + last_name, else user.name
+    if ob and (ob.first_name or ob.last_name):
+        name = " ".join((ob.first_name or "", ob.last_name or "")).strip() or (user.name or "User")
+    else:
+        name = user.name or "User"
+    # Email: user.email or onboarding
+    email = user.email or (ob.email if ob else None) or None
+    # Profile picture: from S3 only (onboarding upload) -> presigned URL; reduced size via longer expiry only, image displayed small in UI
+    profile_picture_url: str | None = None
+    if ob and ob.profile_picture and is_user_file_key(ob.profile_picture):
+        profile_picture_url = generate_presigned_display_url(ob.profile_picture)
+    return BasicUserInfo(
+        name=name,
+        email=email,
+        profile_picture_url=profile_picture_url,
+        role="Freelancer",
+    )
+
+
 def to_response(user: User) -> UserResponse:
     """Map User model to UserResponse."""
     return UserResponse(
@@ -81,6 +105,9 @@ class UserService:
 
     async def get_by_id(self, db: AsyncSession, user_id: UUID) -> User | None:
         return await get_user_by_id(db, user_id)
+
+    async def get_basic_info(self, db: AsyncSession, user: User) -> BasicUserInfo:
+        return await get_basic_user_info(db, user)
 
     def to_response(self, user: User) -> UserResponse:
         return to_response(user)
