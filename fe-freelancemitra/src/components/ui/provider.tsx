@@ -10,17 +10,20 @@ import { QueryProvider } from "./query-provider"
 import { Toaster } from "./toaster"
 
 export function Provider(props: ColorModeProviderProps) {
+  const { children, ...themeProps } = props
   return (
     <SessionProvider>
       <QueryProvider>
         <ChakraProvider value={defaultSystem}>
-          <ColorModeProvider 
-            defaultTheme="system" 
+          <ColorModeProvider
+            defaultTheme="system"
             enableSystem={true}
             attribute="class"
             disableTransitionOnChange={true}
-            {...props} 
-          />
+            {...themeProps}
+          >
+            {children}
+          </ColorModeProvider>
           <Toaster />
         </ChakraProvider>
       </QueryProvider>

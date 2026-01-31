@@ -36,6 +36,8 @@ import { inputBorderStyles, cardStyles } from '@/lib/onboarding-form-styles';
 export default function BasicContactStep({ data, updateData }: Props) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('gray.50', 'gray.700');
+  const avatarCircleBg = useColorModeValue('gray.200', 'gray.600');
+  const avatarIconColor = useColorModeValue('gray.600', 'gray.300');
   const [selectedCountryCode, setSelectedCountryCode] = useState('');
   const [uploading, setUploading] = useState(false);
   const [displayUrl, setDisplayUrl] = useState<string | null>(null);
@@ -99,16 +101,23 @@ export default function BasicContactStep({ data, updateData }: Props) {
         w="full"
       >
         {/* Left card: Profile Picture */}
-        <Box flex={{ base: 'none', md: '0 0 280px' }} {...cardStyles}>
+        <Box
+          flex={{ base: 'none', md: '0 0 280px' }}
+          {...cardStyles}
+          display="flex"
+          flexDirection="column"
+          minH={{ base: 'auto', md: '380px' }}
+        >
           <Text fontWeight="semibold" mb={4} color="gray.700" _dark={{ color: 'gray.300' }}>
             Profile Picture
           </Text>
-          <Stack align="center" gap={4}>
+          <Stack align="center" gap={4} flex={1} justify="flex-start">
             <Box
-              w="100px"
-              h="100px"
+              w={{ base: '140px', md: '180px' }}
+              h={{ base: '140px', md: '180px' }}
+              flexShrink={0}
               borderRadius="full"
-              bg="gradient-to-br from-blue.100 to-purple.100"
+              bg={avatarCircleBg}
               display="flex"
               alignItems="center"
               justifyContent="center"
@@ -117,14 +126,13 @@ export default function BasicContactStep({ data, updateData }: Props) {
               borderColor="white"
               boxShadow="0 8px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04)"
               _dark={{
-                bg: 'gradient-to-br from-blue.900 to-purple.900',
                 borderColor: 'gray.700'
               }}
             >
               {profilePictureSrc ? (
                 <img
                   src={profilePictureSrc}
-                  alt={`${data.firstName} ${data.lastName}` || 'User'}
+                  alt=""
                   style={{
                     width: '100%',
                     height: '100%',
@@ -132,11 +140,32 @@ export default function BasicContactStep({ data, updateData }: Props) {
                   }}
                 />
               ) : (
-                <Text fontSize="4xl" color="gray.500" _dark={{ color: 'gray.400' }}>
-                  👤
-                </Text>
+                <Box
+                  position="relative"
+                  zIndex={1}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  w="full"
+                  h="full"
+                  aria-hidden
+                >
+                  <Box boxSize={{ base: 16, md: 20 }} flexShrink={0}>
+                    <svg
+                      viewBox="0 0 448 512"
+                      width="100%"
+                      height="100%"
+                      fill={avatarIconColor}
+                      aria-hidden
+                    >
+                      <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
+                    </svg>
+                  </Box>
+                </Box>
               )}
             </Box>
+          </Stack>
+          <Box mt="auto" pt={4}>
             <Button
               variant="solid"
               colorScheme="blue"
@@ -165,7 +194,7 @@ export default function BasicContactStep({ data, updateData }: Props) {
               onChange={handleImageUpload}
               style={{ display: 'none' }}
             />
-          </Stack>
+          </Box>
         </Box>
 
         {/* Right card: Name, role, phone */}

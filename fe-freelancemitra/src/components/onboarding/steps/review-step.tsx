@@ -74,35 +74,47 @@ export default function ReviewStep({ data, email: sessionEmail }: Props) {
     <Stack direction="column" gap={6} align="stretch">
       {/* Header Section */}
       <Box textAlign="center">
-        <Heading size="lg" mb={4}>Review Your Profile</Heading>
-        <Text color="gray.600" mb={4}>
+        <Heading size="lg" mb={4} color="gray.800" _dark={{ color: 'white' }}>
+          Review Your Profile
+        </Heading>
+        <Text color="gray.600" _dark={{ color: 'gray.300' }} mb={4}>
           Please review all the information below before completing your profile
         </Text>
         
         <Box
           p={4}
-          border="1px"
-          borderColor={completionPercentage >= 80 ? 'green.200' : 'orange.200'}
+          border="2px"
+          borderColor={completionPercentage >= 80 ? 'green.300' : 'orange.300'}
           borderRadius="lg"
           bg={completionPercentage >= 80 ? 'green.50' : 'orange.50'}
+          boxShadow="0 2px 8px rgba(0, 0, 0, 0.08)"
           _dark={{
             bg: completionPercentage >= 80 ? 'green.900' : 'orange.900',
-            borderColor: completionPercentage >= 80 ? 'green.700' : 'orange.700'
+            borderColor: completionPercentage >= 80 ? 'green.600' : 'orange.600',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
           }}
         >
           <HStack justify="center" gap={3}>
-            <Text
-              fontSize="2xl"
-              color={completionPercentage >= 80 ? 'green.500' : 'orange.500'}
-            >
+            <Text fontSize="2xl">
               {completionPercentage >= 80 ? '✅' : 'ℹ️'}
             </Text>
-            <Text fontWeight="medium" color={completionPercentage >= 80 ? 'green.800' : 'orange.800'}>
+            <Text
+              fontWeight="semibold"
+              fontSize="md"
+              color={completionPercentage >= 80 ? 'green.800' : 'orange.800'}
+              _dark={{ color: 'white' }}
+            >
               Profile Completion: {completionPercentage}%
             </Text>
           </HStack>
           {completionPercentage < 80 && (
-            <Text fontSize="sm" color="orange.700" mt={2}>
+            <Text
+              fontSize="sm"
+              color="orange.700"
+              _dark={{ color: 'orange.200' }}
+              mt={2}
+              textAlign="center"
+            >
               Consider completing more sections for a stronger profile
             </Text>
           )}

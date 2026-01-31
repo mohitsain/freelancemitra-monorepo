@@ -462,7 +462,9 @@ export default function OnboardingFlow() {
           </HStack>
           <HStack gap={2} flexShrink={0}>
             <Tooltip content="Toggle dark mode">
-              <ColorModeButton size="sm" variant="outline" aria-label="Toggle theme" />
+              <Box as="span" display="inline-block">
+                <ColorModeButton size="sm" variant="outline" aria-label="Toggle theme" />
+              </Box>
             </Tooltip>
             <Tooltip content="Skip Onboarding">
               <IconButton

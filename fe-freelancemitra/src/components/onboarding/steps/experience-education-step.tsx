@@ -114,11 +114,9 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
               <Text fontWeight="medium" color="gray.700" _dark={{ color: 'gray.300' }}>
                 Position {index + 1}
               </Text>
-              {data.workHistory.length > 1 && (
-                <Button aria-label="Remove work history" size="sm" variant="ghost" colorScheme="red" onClick={() => removeWorkHistory(index)}>
-                  ✕
-                </Button>
-              )}
+              <Button aria-label="Remove work history" size="sm" variant="ghost" colorScheme="red" onClick={() => removeWorkHistory(index)}>
+                ✕
+              </Button>
             </HStack>
             <Stack direction="column" gap={5}>
               <HStack gap={4} w="full" flexWrap={{ base: 'wrap', sm: 'nowrap' }}>
@@ -294,11 +292,9 @@ export default function ExperienceEducationStep({ data, updateData }: Props) {
               <Text fontWeight="medium" color="gray.700" _dark={{ color: 'gray.300' }}>
                 Certification {index + 1}
               </Text>
-              {data.certifications.length > 1 && (
-                <Button aria-label="Remove certification" size="sm" variant="ghost" colorScheme="red" onClick={() => removeCertification(index)}>
-                  ✕
-                </Button>
-              )}
+              <Button aria-label="Remove certification" size="sm" variant="ghost" colorScheme="red" onClick={() => removeCertification(index)}>
+                ✕
+              </Button>
             </HStack>
             <Stack direction="column" gap={5}>
               <Box>

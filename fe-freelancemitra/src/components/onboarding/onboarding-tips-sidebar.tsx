@@ -56,14 +56,18 @@ export default function OnboardingTipsSidebar({ currentStep, stepTitle }: Onboar
     "review",
   ][currentStep];
 
+  // Stick below the onboarding sticky header (~header + progress bar height)
+  const stickyHeaderHeight = "120px";
+
   return (
     <Box
       flex="0 0 30%"
       minW={{ base: "100%", lg: "260px" }}
       maxW={{ lg: "360px" }}
-      position={{ lg: "sticky" }}
-      top={{ lg: 4 }}
+      position="sticky"
+      top={stickyHeaderHeight}
       alignSelf="flex-start"
+      zIndex={10}
     >
       <Stack gap={2}>
         <Text fontSize="sm" fontWeight="semibold" color="gray.600" _dark={{ color: "gray.400" }}>

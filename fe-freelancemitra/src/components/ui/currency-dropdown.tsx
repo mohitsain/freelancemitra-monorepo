@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { dropdownSearchInputStyles, dropdownSearchWrapperStyles } from '@/lib/onboarding-form-styles';
-import { CURRENCIES, CURRENCY_REGIONS, Currency } from '@/data/currency-data';
+import { CURRENCIES, Currency } from '@/data/currency-data';
 
 interface CurrencyDropdownProps {
   value: string;
@@ -27,7 +27,6 @@ export default function CurrencyDropdown({
 }: CurrencyDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState<string>('All');
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -52,15 +51,13 @@ export default function CurrencyDropdown({
     const matchesSearch = currency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          currency.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          currency.symbol.includes(searchTerm);
-    const matchesRegion = selectedRegion === 'All' || currency.region === selectedRegion;
-    return matchesSearch && matchesRegion;
+    return matchesSearch;
   });
 
   const handleCurrencySelect = (currency: Currency) => {
     onChange(currency.code);
     setIsOpen(false);
     setSearchTerm('');
-    setSelectedRegion('All');
   };
 
   const displayValue = value || placeholder;
@@ -134,56 +131,7 @@ export default function CurrencyDropdown({
             />
           </Box>
 
-          {/* Enhanced Region Filter */}
-          <Box p={4} borderBottom="1px" borderColor={borderColor}>
-            <Stack direction="row" gap={3} flexWrap="wrap">
-              {['All', ...CURRENCY_REGIONS].map((region) => (
-                <Button
-                  key={region}
-                  size="sm"
-                  variant={selectedRegion === region ? 'solid' : 'outline'}
-                  colorScheme={selectedRegion === region ? 'orange' : 'gray'}
-                  onClick={() => setSelectedRegion(region)}
-                  borderRadius="xl"
-                  px={5}
-                  py={2}
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  minW="auto"
-                  h="auto"
-                  _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: selectedRegion === region 
-                      ? '0 8px 25px rgba(249, 115, 22, 0.3)' 
-                      : '0 6px 20px rgba(0, 0, 0, 0.15)',
-                    _before: {
-                      left: '100%'
-                    }
-                  }}
-                  _active={{
-                    transform: 'translateY(0px)'
-                  }}
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                  position="relative"
-                  overflow="hidden"
-                  _before={{
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: '-100%',
-                    width: '100%',
-                    height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                    transition: 'left 0.5s ease'
-                  }}
-                >
-                  {region}
-                </Button>
-              ))}
-            </Stack>
-          </Box>
-
-          {/* Single Panel Layout with Enhanced Design */}
+          {/* Currency list */}
           <Box maxH="400px" overflowY="auto">
             {filteredCurrencies.length > 0 ? (
               <Stack gap={0}>

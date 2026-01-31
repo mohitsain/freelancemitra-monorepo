@@ -97,17 +97,15 @@ export default function TestimonialsStep({ data, updateData }: Props) {
                   </Badge>
                 )}
               </HStack>
-              {data.testimonials.length > 1 && (
-                <Button
-                  aria-label="Remove testimonial"
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => removeTestimonial(index)}
-                >
-                  ✕
-                </Button>
-              )}
+              <Button
+                aria-label="Remove testimonial"
+                size="sm"
+                variant="ghost"
+                colorScheme="red"
+                onClick={() => removeTestimonial(index)}
+              >
+                ✕
+              </Button>
             </HStack>
 
             <Stack direction="column" gap={5} align="stretch">

@@ -124,18 +124,16 @@ export default function PortfolioStep({ data, updateData }: Props) {
               <Text fontWeight="bold" fontSize="md" color="gray.800" _dark={{ color: 'white' }}>
                 Work Sample {index + 1}
               </Text>
-              {data.portfolioSamples.length > 1 && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={() => removePortfolioSample(index)}
-                  _hover={{ bg: 'red.50', color: 'red.600' }}
-                  _dark={{ _hover: { bg: 'red.900', color: 'red.400' } }}
-                >
-                  🗑️ Remove
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                colorScheme="red"
+                onClick={() => removePortfolioSample(index)}
+                _hover={{ bg: 'red.50', color: 'red.600' }}
+                _dark={{ _hover: { bg: 'red.900', color: 'red.400' } }}
+              >
+                🗑️ Remove
+              </Button>
             </HStack>
 
             <Stack direction="column" gap={5} align="stretch">
