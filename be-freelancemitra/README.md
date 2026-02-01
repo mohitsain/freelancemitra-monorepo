@@ -152,6 +152,44 @@ Keep this running so workflows and activities are processed.
 
 Optional env (see `.env.example`): `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`, `TEMPORAL_TASK_QUEUE`. Defaults: `localhost:7233`, `default`, `freelancemitra-task-queue`.
 
+## RAG Agent (OpenAI)
+
+The RAG (Retrieval-Augmented Generation) agent answers questions using a small knowledge base and OpenAI. It embeds documents and the query with OpenAI, retrieves the most relevant chunks, then generates an answer with the chat model.
+
+1. **Set OpenAI API key** in `be-freelancemitra/.env`:
+   ```
+   OPENAI_API_KEY=sk-your-key
+   ```
+2. **Query** (no auth required for the RAG endpoint):
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/rag/query \
+     -H "Content-Type: application/json" \
+     -d '{"query": "What is FreelanceMitra?", "top_k": 3}'
+   ```
+   Response: `{"success": true, "data": {"answer": "...", "sources": ["...", ...]}}`.
+
+Optional env: `OPENAI_EMBEDDING_MODEL` (default `text-embedding-3-small`), `OPENAI_CHAT_MODEL` (default `gpt-4o-mini`). The default knowledge base is a few static chunks about FreelanceMitra; you can extend it later via DB or file upload.
+
+## Proposals (personalized from onboarding)
+
+Generate a personalized freelance proposal from a job description using the current user's onboarding/portfolio data (OpenAI). Proposals are saved to the database; you can list, get, update, and delete them.
+
+1. **Requirements:** User must be authenticated (Bearer token) and have completed onboarding. Set `OPENAI_API_KEY` in `.env`.
+2. **Generate:** `POST /api/v1/proposals/generate` — body: `{"job_description": "...", "platform": "Upwork", "job_budget": "$500", "hourly_rate": "$25/hr"}` (platform, job_budget, hourly_rate optional). Response: `{"success": true, "data": {"proposal": "...", "id": "<uuid>"}}`. Each generated proposal is saved to the DB.
+3. **List:** `GET /api/v1/proposals` — returns the current user's saved proposals (newest first).
+4. **Get one:** `GET /api/v1/proposals/{id}` — returns a single proposal (must belong to current user).
+5. **Update:** `PATCH /api/v1/proposals/{id}` — body: any subset of `{"job_description", "platform", "job_budget", "hourly_rate", "proposal"}`. Use to edit a saved proposal.
+6. **Delete:** `DELETE /api/v1/proposals/{id}` — deletes a saved proposal (must belong to current user).
+
+Example (after logging in and getting a JWT):
+
+```bash
+curl -X POST http://localhost:8000/api/v1/proposals/generate \
+  -H "Authorization: Bearer <your-jwt>" \
+  -H "Content-Type: application/json" \
+  -d '{"job_description": "We need a React developer for a 3-month project..."}'
+```
+
 ## Folder structure
 
 ```
@@ -204,6 +242,12 @@ be-freelancemitra/
 | Upload     | GET    | `/api/v1/upload/display-url?key=...` | Get presigned GET URL for S3 object |
 | Workflows  | POST   | `/api/v1/workflows/greet/start`      | Start Greet workflow (body: `{"name": "..."}`) |
 | Workflows  | POST   | `/api/v1/workflows/notify/start`     | Start Notify workflow (body: `{"user_id", "message"}`) |
+| RAG        | POST   | `/api/v1/rag/query`                  | RAG Agent: query with retrieval + OpenAI (body: `{"query": "...", "top_k": 3}`) |
+| Proposals  | POST   | `/api/v1/proposals/generate`         | Generate and save proposal (body: `{"job_description": "...", "platform?", "job_budget?", "hourly_rate?"}`) |
+| Proposals  | GET    | `/api/v1/proposals`                  | List current user's saved proposals |
+| Proposals  | GET    | `/api/v1/proposals/{id}`             | Get one saved proposal |
+| Proposals  | PATCH  | `/api/v1/proposals/{id}`             | Update saved proposal (body: partial fields) |
+| Proposals  | DELETE | `/api/v1/proposals/{id}`             | Delete saved proposal |
 
 Locations endpoints are **public** (no auth). All other endpoints above require `Authorization: Bearer <NextAuth JWT>` (or `next-auth.session-token` cookie).
 

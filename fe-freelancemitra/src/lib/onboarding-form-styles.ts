@@ -143,3 +143,32 @@ export const inputSizes = {
   px: 4,
   py: 2.5,
 };
+
+/** Secondary (outline) button - consistent with onboarding section buttons */
+export const secondaryButtonStyles = {
+  variant: "outline" as const,
+  size: "md" as const,
+  borderRadius: "lg",
+  borderWidth: "2px",
+  borderColor: "gray.300",
+  px: 5,
+  py: 2.5,
+  minW: "100px",
+  fontWeight: "medium" as const,
+  _dark: { borderColor: "gray.500", color: "gray.200" },
+  _hover: { borderColor: "gray.400", _dark: { borderColor: "gray.400" } },
+  _disabled: { opacity: 0.6, cursor: "not-allowed" },
+};
+
+/** Primary (solid) button - consistent with onboarding nav buttons */
+export const primaryButtonStyles = {
+  variant: "solid" as const,
+  colorScheme: "blue",
+  size: "md" as const,
+  borderRadius: "lg",
+  px: 5,
+  py: 2.5,
+  minW: "100px",
+  fontWeight: "medium" as const,
+  _disabled: { opacity: 0.6, cursor: "not-allowed" },
+};

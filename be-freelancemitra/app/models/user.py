@@ -12,6 +12,7 @@ from app.database import Base
 if TYPE_CHECKING:
     from app.models.session import Session
     from app.models.onboarding import UserOnboarding
+    from app.models.proposal_history import ProposalHistory
 
 
 class User(Base):
@@ -52,6 +53,11 @@ class User(Base):
         "UserOnboarding",
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+    proposal_history: Mapped[list["ProposalHistory"]] = relationship(
+        "ProposalHistory",
+        back_populates="user",
         cascade="all, delete-orphan",
     )
 

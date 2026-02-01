@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     temporal_namespace: str = "default"
     temporal_task_queue: str = "freelancemitra-task-queue"
 
+    # OpenAI (RAG Agent)
+    openai_api_key: Optional[str] = None
+    openai_embedding_model: str = "text-embedding-3-small"
+    openai_chat_model: str = "gpt-4o-mini"
+
 
 @lru_cache
 def get_settings() -> Settings:

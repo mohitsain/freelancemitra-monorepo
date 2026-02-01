@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from app.config import get_settings
 from app.core.security import NEXTAUTH_SESSION_COOKIE
 from app.database import engine, Base
-from app.models import User, Session, UserOnboarding, Country, State, Skill, Specialization, Language  # noqa: F401 - register models
+from app.models import User, Session, UserOnboarding, ProposalHistory, Country, State, Skill, Specialization, Language  # noqa: F401 - register models
 from app.api.v1.router import api_router
 from app.schemas.response import ApiErrorDetail, ApiResponse
 
@@ -67,6 +67,14 @@ OPENAPI_TAGS = [
     {
         "name": "workflows",
         "description": "Start Temporal workflows (greet, notify). Requires Temporal server and worker.",
+    },
+    {
+        "name": "rag",
+        "description": "RAG Agent: query with retrieval-augmented generation (OpenAI). Requires OPENAI_API_KEY.",
+    },
+    {
+        "name": "proposals",
+        "description": "Generate personalized freelance proposals from job description + user onboarding. Requires Bearer token and OPENAI_API_KEY.",
     },
 ]
 
