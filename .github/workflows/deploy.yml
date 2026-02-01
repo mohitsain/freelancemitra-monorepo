@@ -8,41 +8,37 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # UNCOMMENT the line below if you created an "Environment" in GitHub Settings
     environment: development 
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check Secret Availability
-        run: |
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then
-            echo " ERROR: EC2_HOST is empty. Check your GitHub Secrets name."
-            exit 1
-          else
-            echo "EC2_HOST is found."
-          fi
-
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0 # Updated to latest version
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          script_stop: true # Stops the script if any command fails
+          script_stop: true 
           script: |
+            # 1. Navigate to directory
             cd /home/ubuntu/freelancemitra/freelancemitra-monorepo
             
-            # Switch and update develop branch
+            # 2. FIX PERMISSIONS (Solves the FETCH_HEAD error)
+            # This ensures the 'ubuntu' user owns all files, even if created by root/docker previously
+            sudo chown -R ubuntu:ubuntu .
+            
+            # 3. Update the code
             git fetch origin develop
             git checkout develop
             git pull origin develop
             
-            # Restart services
-            docker compose down
-            docker compose up -d --build
+            # 4. Restart services
+            # Using 'sudo' here ensures docker has the permissions it needs
+            sudo docker compose down
+            sudo docker compose up -d --build
             
-            # Clean up dangling images to save EC2 space
-            docker image prune -f
+            # 5. Maintenance
+            sudo docker image prune -f
