@@ -16,11 +16,33 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Only add column if user_onboarding exists (handles DBs where 001 was stamped but table missing).
     op.execute("""
-        ALTER TABLE user_onboarding
-        ADD COLUMN IF NOT EXISTS country_phone_code VARCHAR(16) DEFAULT ''
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = 'user_onboarding'
+          ) THEN
+            ALTER TABLE user_onboarding
+            ADD COLUMN IF NOT EXISTS country_phone_code VARCHAR(16) DEFAULT '';
+          END IF;
+        END $$;
     """)
 
 
 def downgrade() -> None:
-    op.drop_column("user_onboarding", "country_phone_code")
+    op.execute("""
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = 'user_onboarding'
+          ) AND EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'user_onboarding' AND column_name = 'country_phone_code'
+          ) THEN
+            ALTER TABLE user_onboarding DROP COLUMN country_phone_code;
+          END IF;
+        END $$;
+    """)

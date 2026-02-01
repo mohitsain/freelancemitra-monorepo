@@ -32,7 +32,7 @@ function isS3Key(value: string): boolean {
   return value.startsWith('users/') || value.startsWith('onboarding/');
 }
 
-import { inputBorderStyles, cardStyles, labelStyles, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStylesWithDarkBg, invalidBorderForInput, cardStyles, labelStyles, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
 function invalidInputStyles(invalid: boolean) {
   return invalid ? { borderColor: 'red.500' as const } : {};
@@ -236,8 +236,8 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                   size="md"
                   px={4}
                   py={2.5}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('firstName') ? { borderColor: 'red.400' } : {}) }}
+                  {...inputBorderStylesWithDarkBg}
+                  {...(invalidFields?.includes('firstName') ? invalidBorderForInput : {})}
                   {...invalidInputStyles(!!invalidFields?.includes('firstName'))}
                 />
               </Box>
@@ -253,8 +253,8 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                   size="md"
                   px={4}
                   py={2.5}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('lastName') ? { borderColor: 'red.400' } : {}) }}
+                  {...inputBorderStylesWithDarkBg}
+                  {...(invalidFields?.includes('lastName') ? invalidBorderForInput : {})}
                   {...invalidInputStyles(!!invalidFields?.includes('lastName'))}
                 />
               </Box>
@@ -298,8 +298,8 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                   size="md"
                   px={4}
                   py={2.5}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('phoneNumber') ? { borderColor: 'red.400' } : {}) }}
+                  {...inputBorderStylesWithDarkBg}
+                  {...(invalidFields?.includes('phoneNumber') ? invalidBorderForInput : {})}
                   {...invalidInputStyles(!!invalidFields?.includes('phoneNumber'))}
                 />
               </Box>
@@ -325,8 +325,8 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                   size="lg"
                   px={6}
                   py={3}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('addressLine1') ? { borderColor: 'red.400' } : {}) }}
+                  {...inputBorderStylesWithDarkBg}
+                  {...(invalidFields?.includes('addressLine1') ? invalidBorderForInput : {})}
                   {...invalidInputStyles(!!invalidFields?.includes('addressLine1'))}
                 />
               </Box>
@@ -341,8 +341,7 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                   size="lg"
                   px={6}
                   py={3}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  {...inputBorderStylesWithDarkBg}
                 />
               </Box>
               <Box>
@@ -358,8 +357,8 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                       size="lg"
                       px={6}
                       py={3}
-                      {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: 'gray.700', ...(invalidFields?.includes('city') ? { borderColor: 'red.400' } : {}) }}
+                      {...inputBorderStylesWithDarkBg}
+                      {...(invalidFields?.includes('city') ? invalidBorderForInput : {})}
                       {...invalidInputStyles(!!invalidFields?.includes('city'))}
                     />
                   </Box>
@@ -372,8 +371,7 @@ export default function BasicContactStep({ data, updateData, invalidFields }: Pr
                       size="lg"
                       px={6}
                       py={3}
-                      {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                      {...inputBorderStylesWithDarkBg}
                     />
                   </Box>
                   <Box flex="1 1 140px" minW="140px">

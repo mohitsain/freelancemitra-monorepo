@@ -35,8 +35,9 @@ import {
   type ProposalItem,
 } from "@/lib/proposals-api";
 import {
-  inputBorderStyles,
-  textareaBorderStyles,
+  inputBorderStylesWithDarkBg,
+  inputBorderStylesWithDarkBgAndWhiteText,
+  textareaBorderStylesWithDarkBg,
   labelStyles,
   requiredAsteriskStyles,
   cardStyles,
@@ -253,7 +254,7 @@ export default function ProposalBuildingPage() {
           }}
           gap={0}
           columnGap={{ base: 0, lg: 6 }}
-          align="stretch"
+          alignItems="stretch"
           maxW="100%"
         >
           {/* Left 65%: Header, form, main proposal */}
@@ -282,8 +283,7 @@ export default function ProposalBuildingPage() {
                     onChange={(e) => setJobDescription(e.target.value)}
                     rows={5}
                     resize="vertical"
-                    {...textareaBorderStyles}
-                    _dark={{ ...textareaBorderStyles._dark, bg: "gray.700" }}
+                    {...textareaBorderStylesWithDarkBg}
                     px={inputSizes.px}
                     py={inputSizes.py}
                   />
@@ -295,8 +295,7 @@ export default function ProposalBuildingPage() {
                     placeholder="e.g. Acme Corp"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: "gray.700" }}
+                    {...inputBorderStylesWithDarkBg}
                     px={inputSizes.px}
                     py={inputSizes.py}
                   />
@@ -306,23 +305,33 @@ export default function ProposalBuildingPage() {
                   <Box flex={1} minW="140px">
                     <Text {...labelStyles}>Platform (optional)</Text>
                     <Box
-                      as="select"
-                      value={platform}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPlatform(e.target.value)}
                       w="100%"
                       px={inputSizes.px}
                       py={inputSizes.py}
                       fontSize="md"
                       bg="white"
                       color="gray.800"
-                      {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: "gray.700", color: "white" }}
+                      {...inputBorderStylesWithDarkBgAndWhiteText}
                     >
-                      {PLATFORMS.map((p) => (
-                        <option key={p.value || "none"} value={p.value}>
-                          {p.label}
-                        </option>
-                      ))}
+                      <select
+                        value={platform}
+                        onChange={(e) => setPlatform(e.target.value)}
+                        style={{
+                          width: "100%",
+                          fontSize: "inherit",
+                          background: "transparent",
+                          border: "none",
+                          outline: "none",
+                          color: "inherit",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {PLATFORMS.map((p) => (
+                          <option key={p.value || "none"} value={p.value}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </select>
                     </Box>
                   </Box>
                   <Box flex={1} minW="120px">
@@ -331,8 +340,7 @@ export default function ProposalBuildingPage() {
                       placeholder="e.g. $500"
                       value={jobBudget}
                       onChange={(e) => setJobBudget(e.target.value)}
-                      {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: "gray.700" }}
+                      {...inputBorderStylesWithDarkBg}
                       px={inputSizes.px}
                       py={inputSizes.py}
                     />
@@ -343,8 +351,7 @@ export default function ProposalBuildingPage() {
                       placeholder="e.g. $25/hr"
                       value={hourlyRate}
                       onChange={(e) => setHourlyRate(e.target.value)}
-                      {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: "gray.700" }}
+                      {...inputBorderStylesWithDarkBg}
                       px={inputSizes.px}
                       py={inputSizes.py}
                     />
@@ -359,20 +366,24 @@ export default function ProposalBuildingPage() {
                     px={6}
                     py={3}
                     minW="160px"
-                    leftIcon={<Icon as={FaRocket} />}
                     onClick={handleGenerate}
-                    isLoading={isGenerating}
+                    loading={isGenerating}
                     loadingText="Generating..."
                   >
-                    Generate proposal
+                    <HStack gap={2} as="span">
+                      <Icon as={FaRocket} />
+                      Generate proposal
+                    </HStack>
                   </Button>
                   <Button
                     {...secondaryLargeButtonProps}
-                    leftIcon={<Icon as={FaEraser} />}
                     onClick={handleClear}
-                    isDisabled={isGenerating}
+                    disabled={isGenerating}
                   >
-                    Clear
+                    <HStack gap={2} as="span">
+                      <Icon as={FaEraser} />
+                      Clear
+                    </HStack>
                   </Button>
                 </HStack>
               </VStack>
@@ -413,13 +424,15 @@ export default function ProposalBuildingPage() {
                       {!isEditingMain ? (
                         <Button
                           {...secondaryButtonStyles}
-                          leftIcon={<Icon as={FaEdit} />}
                           onClick={() => {
                             setProposalBeforeEdit(currentProposal);
                             setIsEditingMain(true);
                           }}
                         >
-                          Edit
+                          <HStack gap={2} as="span">
+                            <Icon as={FaEdit} />
+                            Edit
+                          </HStack>
                         </Button>
                       ) : (
                         <>
@@ -434,11 +447,13 @@ export default function ProposalBuildingPage() {
                           </Button>
                           <Button
                             {...primaryButtonStyles}
-                            leftIcon={<Icon as={FaSave} />}
                             onClick={handleSaveMainProposal}
-                            isLoading={savingMain}
+                            loading={savingMain}
                           >
-                            Save changes
+                            <HStack gap={2} as="span">
+                              <Icon as={FaSave} />
+                              Save changes
+                            </HStack>
                           </Button>
                         </>
                       )}
@@ -464,8 +479,7 @@ export default function ProposalBuildingPage() {
                       onChange={(e) => setCurrentProposal(e.target.value)}
                       minHeight={proposalContentMinHeight}
                       resize="vertical"
-                      {...textareaBorderStyles}
-                      _dark={{ ...textareaBorderStyles._dark, bg: "gray.700" }}
+                      {...textareaBorderStylesWithDarkBg}
                       px={inputSizes.px}
                       py={inputSizes.py}
                     />
@@ -567,7 +581,7 @@ export default function ProposalBuildingPage() {
                       onClick={() => handleSelectFromHistory(item)}
                     >
                       <VStack align="stretch" gap={2}>
-                        <Text color={textPrimary} fontWeight="medium" noOfLines={2} fontSize="sm" lineHeight="short">
+                        <Text color={textPrimary} fontWeight="medium" lineClamp={2} fontSize="sm" lineHeight="short">
                           {item.jobDescription.slice(0, 80)}
                           {item.jobDescription.length > 80 ? "…" : ""}
                         </Text>
@@ -584,13 +598,15 @@ export default function ProposalBuildingPage() {
                           size="sm"
                           minW="auto"
                           px={3}
-                          leftIcon={<Icon as={FaInfoCircle} />}
                           onClick={(e) => {
                             e.stopPropagation();
                             openDetailModal(item);
                           }}
                         >
-                          Complete details
+                          <HStack gap={2} as="span">
+                            <Icon as={FaInfoCircle} />
+                            Complete details
+                          </HStack>
                         </Button>
                       </VStack>
                     </Box>
@@ -609,22 +625,26 @@ export default function ProposalBuildingPage() {
                       >
                         <Button
                           {...secondaryButtonStyles}
-                          leftIcon={<Icon as={FaChevronLeft} />}
                           onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
-                          isDisabled={historyPageClamped <= 1}
+                          disabled={historyPageClamped <= 1}
                         >
-                          Prev
+                          <HStack gap={2} as="span">
+                            <Icon as={FaChevronLeft} />
+                            Prev
+                          </HStack>
                         </Button>
                         <Text color={textSecondary} fontSize="sm" whiteSpace="nowrap">
                           Page {historyPageClamped} of {historyTotalPages}
                         </Text>
                         <Button
                           {...secondaryButtonStyles}
-                          rightIcon={<Icon as={FaChevronRight} />}
                           onClick={() => setHistoryPage((p) => Math.min(historyTotalPages, p + 1))}
-                          isDisabled={historyPageClamped >= historyTotalPages}
+                          disabled={historyPageClamped >= historyTotalPages}
                         >
-                          Next
+                          <HStack gap={2} as="span">
+                            Next
+                            <Icon as={FaChevronRight} />
+                          </HStack>
                         </Button>
                       </HStack>
                     )}
@@ -632,8 +652,8 @@ export default function ProposalBuildingPage() {
                 )}
               </>
             ) : (
-              <Box
-                as="button"
+              <Button
+                variant="ghost"
                 type="button"
                 h="full"
                 minH="120px"
@@ -658,7 +678,7 @@ export default function ProposalBuildingPage() {
                   History
                 </Text>
                 <Icon as={FaChevronLeft} color={textSecondary} fontSize="sm" />
-              </Box>
+              </Button>
             )}
           </Box>
         </Grid>
@@ -708,10 +728,7 @@ export default function ProposalBuildingPage() {
                 </DialogTitle>
                 <DialogCloseTrigger
                   flexShrink={0}
-                  size="sm"
-                  variant="outline"
                   aria-label="Close"
-                  borderRadius="md"
                 />
               </DialogHeader>
               <DialogBody

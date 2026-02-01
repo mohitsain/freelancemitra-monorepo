@@ -13,7 +13,7 @@ import { OnboardingData } from '../onboarding-flow';
 import SkillsDropdown from '@/components/ui/skills-dropdown';
 import SpecializationsDropdown from '@/components/ui/specializations-dropdown';
 import LanguagesDropdown from '@/components/ui/languages-dropdown';
-import { inputBorderStyles, textareaBorderStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStylesWithDarkBg, textareaBorderStylesWithDarkBg, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
 const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
 
@@ -73,8 +73,7 @@ export default function ProfessionalOverviewStep({ data, updateData, invalidFiel
           value={data.headline}
           onChange={(e) => updateData({ headline: e.target.value })}
           {...inputSizes}
-          {...inputBorderStyles}
-          _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+          {...inputBorderStylesWithDarkBg}
         />
       </Box>
 
@@ -96,8 +95,7 @@ export default function ProfessionalOverviewStep({ data, updateData, invalidFiel
               rows={3}
               px={4}
               py={2.5}
-              {...textareaBorderStyles}
-              _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+              {...textareaBorderStylesWithDarkBg}
               {...(invalidFields?.includes('shortSummary') ? invalidBorder : {})}
             />
           </Box>
@@ -110,8 +108,7 @@ export default function ProfessionalOverviewStep({ data, updateData, invalidFiel
               rows={5}
               px={4}
               py={2.5}
-              {...textareaBorderStyles}
-              _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+              {...textareaBorderStylesWithDarkBg}
             />
           </Box>
         </Stack>
@@ -170,8 +167,7 @@ export default function ProfessionalOverviewStep({ data, updateData, invalidFiel
                 min={0}
                 max={50}
                 {...inputSizes}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                {...inputBorderStylesWithDarkBg}
               />
             </Box>
             <Box flex={1} minW={0} {...(invalidFields?.includes('languagesSpoken') ? { borderWidth: '2px', borderColor: 'red.500', borderRadius: 'lg', p: '2px', _dark: { borderColor: 'red.400' } } : {})}>

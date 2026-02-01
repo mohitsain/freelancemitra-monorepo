@@ -11,6 +11,7 @@ import {
   Text, 
   Icon, 
   IconButton, 
+  Image,
   useDisclosure,
   Drawer,
   DrawerContent,
@@ -24,7 +25,6 @@ import {
   FaRocket, 
   FaUserTie, 
   FaFileInvoiceDollar, 
-  FaBriefcase, 
   FaChartLine,
   FaTools,
   FaFileAlt,
@@ -78,7 +78,7 @@ function UserAvatar(props: {
   };
   if (profilePictureUrl) {
     return (
-      <Box as="img" src={profilePictureUrl} alt="" {...common} objectFit="cover" loading="lazy" />
+      <Image src={profilePictureUrl} alt="" {...common} fit="cover" loading="lazy" />
     );
   }
   return (
@@ -105,7 +105,7 @@ function AccountMenuContent(props: {
         <HStack gap={3} align="center">
           <UserAvatar profilePictureUrl={profilePictureUrl} initials={userInitials} size="40px" accentBlue={accentBlue} />
           <VStack gap={0} align="start" flex={1} minW={0}>
-            <Text fontSize="sm" fontWeight="semibold" color={textPrimary} noOfLines={1}>
+            <Text fontSize="sm" fontWeight="semibold" color={textPrimary} lineClamp={1}>
               {userName}
             </Text>
             <Text fontSize="xs" color={textSecondary}>{userRole}</Text>
@@ -168,23 +168,27 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const GENERAL_ITEMS = [
+type GeneralItem = {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  route: string;
+  subItems: readonly string[] | undefined;
+};
+const GENERAL_ITEMS: GeneralItem[] = [
   { name: 'Dashboard', icon: FaChartLine, route: '/', subItems: undefined },
   { name: 'Portfolio', icon: FaRocket, route: '/portfolio-creation', subItems: ['Templates', 'AI Builder', 'Customization'] },
   { name: 'Proposal Building', icon: FaFileAlt, route: '/proposal-building', subItems: ['AI Generator', 'Templates', 'Analytics'] },
-  { name: 'Project Creation', icon: FaBriefcase, route: '/project-creation', subItems: ['Project Setup', 'Timeline', 'Milestones'] },
   { name: 'Lead Management', icon: FaUserTie, route: '/lead-management', subItems: ['Lead Scoring', 'CRM', 'Follow-ups'] },
   { name: 'Invoice Generation', icon: FaFileInvoiceDollar, route: '/invoice-generation', subItems: ['Create Invoice', 'Payment Tracking', 'Reports'] },
   { name: 'Extensions', icon: FaTools, route: '/extensions', subItems: ['LinkedIn', 'Upwork', 'Behance'] },
   { name: 'Integrations', icon: FaPlug, route: '/integrations', subItems: ['API Keys', 'Webhooks', 'Third-party Apps'] },
-] as const;
+];
 
 const PREFETCH_ROUTES = [
   '/',
   '/profile',
   '/portfolio-creation',
   '/proposal-building',
-  '/project-creation',
   '/lead-management',
   '/invoice-generation',
   '/extensions',
@@ -247,8 +251,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     []
   );
 
+  type NavItemWithActive = GeneralItem & { active: boolean };
   const navigationItems = useMemo(
-    () => [
+    (): { section: string; items: NavItemWithActive[] }[] => [
       {
         section: 'General',
         items: GENERAL_ITEMS.map((item) => ({
@@ -305,7 +310,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </IconButton>
           
           <HStack gap={3}>
-            <Box as="img" src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="48px" h="48px" objectFit="contain" flexShrink={0} />
+            <Image src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="48px" h="48px" fit="contain" flexShrink={0} />
             <Text fontWeight="semibold" color={textPrimary}>FreelanceMitra</Text>
           </HStack>
         </HStack>
@@ -599,10 +604,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <UserAvatar profilePictureUrl={profilePictureUrl} initials={userInitials} size="28px" accentBlue={accentBlue} />
                   {!sidebarCollapsed && (
                     <VStack gap={0} align="start" flex={1} minW={0}>
-                      <Text fontSize="sm" fontWeight="semibold" color={textPrimary} noOfLines={1}>
+                      <Text fontSize="sm" fontWeight="semibold" color={textPrimary} lineClamp={1}>
                         {userName}
                       </Text>
-                      <Text fontSize="xs" color={textSecondary} noOfLines={1}>
+                      <Text fontSize="xs" color={textSecondary} lineClamp={1}>
                         {userEmail || userRole}
                       </Text>
                     </VStack>
@@ -655,7 +660,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <DrawerHeader borderBottom="1px" borderColor={borderColor}>
             <HStack justify="space-between" align="center">
               <HStack gap={3}>
-                <Box as="img" src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="48px" h="48px" objectFit="contain" flexShrink={0} />
+                <Image src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="48px" h="48px" fit="contain" flexShrink={0} />
                 <Text fontWeight="semibold" color={textPrimary}>FreelanceMitra</Text>
               </HStack>
               <IconButton

@@ -8,9 +8,7 @@ import {
   Textarea
 } from '@chakra-ui/react';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, textareaBorderStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
-
-const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
+import { inputBorderStylesWithDarkBg, textareaBorderStylesWithDarkBg, invalidBorderForInput, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
 
 interface Props {
   data: OnboardingData;
@@ -47,9 +45,8 @@ export default function SocialMediaStep({ data, updateData, invalidFields }: Pro
             onChange={(e) => updateData({ linkedinUrl: e.target.value })}
             type="url"
             {...inputSizes}
-            {...inputBorderStyles}
-            _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
-            {...(invalidFields?.includes('linkedinUrl') ? invalidBorder : {})}
+            {...inputBorderStylesWithDarkBg}
+            {...(invalidFields?.includes('linkedinUrl') ? invalidBorderForInput : {})}
           />
           {!validateUrl(data.linkedinUrl) && data.linkedinUrl !== '' && (
             <Text color="red.500" fontSize="sm" mt={2}>
@@ -76,8 +73,7 @@ export default function SocialMediaStep({ data, updateData, invalidFields }: Pro
               onChange={(e) => updateData({ otherSocialMedia: e.target.value })}
               type="url"
               {...inputSizes}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...inputBorderStylesWithDarkBg}
             />
           </Box>
           <Box>
@@ -88,8 +84,7 @@ export default function SocialMediaStep({ data, updateData, invalidFields }: Pro
               onChange={(e) => updateData({ otherSocialMedia: e.target.value })}
               type="url"
               {...inputSizes}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...inputBorderStylesWithDarkBg}
             />
           </Box>
           <Box>
@@ -100,8 +95,7 @@ export default function SocialMediaStep({ data, updateData, invalidFields }: Pro
               onChange={(e) => updateData({ otherSocialMedia: e.target.value })}
               type="url"
               {...inputSizes}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...inputBorderStylesWithDarkBg}
             />
           </Box>
           <Box>
@@ -113,8 +107,7 @@ export default function SocialMediaStep({ data, updateData, invalidFields }: Pro
               rows={3}
               px={4}
               py={2.5}
-              {...textareaBorderStyles}
-              _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+              {...textareaBorderStylesWithDarkBg}
             />
             <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }} mt={2}>
               You can add multiple URLs separated by commas or new lines
@@ -139,8 +132,7 @@ export default function SocialMediaStep({ data, updateData, invalidFields }: Pro
             onChange={(e) => updateData({ personalWebsite: e.target.value })}
             type="url"
             {...inputSizes}
-            {...inputBorderStyles}
-            _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+            {...inputBorderStylesWithDarkBg}
           />
           {!validateUrl(data.personalWebsite) && data.personalWebsite !== '' && (
             <Text color="red.500" fontSize="sm" mt={2}>

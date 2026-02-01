@@ -9,7 +9,7 @@ import {
   HStack
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
-import { dropdownSearchInputStyles, dropdownSearchWrapperStyles, dropdownTriggerBorderStyles, inputBorderStyles } from '@/lib/onboarding-form-styles';
+import { dropdownSearchInputStyles, dropdownSearchWrapperStyles, dropdownTriggerBorderStylesWithDarkBg, inputBorderStyles } from '@/lib/onboarding-form-styles';
 import { getSkills, type SkillItem } from '@/lib/masters-api';
 
 interface SkillsDropdownProps {
@@ -97,8 +97,7 @@ export default function SkillsDropdown({
         size={size}
         px={6}
         py={3}
-        {...dropdownTriggerBorderStyles}
-        _dark={{ ...dropdownTriggerBorderStyles._dark, bg: 'gray.700' }}
+        {...dropdownTriggerBorderStylesWithDarkBg}
       >
         <Text 
           color={selectedSkills.length > 0 ? 'inherit' : 'gray.500'} 

@@ -9,6 +9,7 @@ import {
   Heading,
   Spinner,
   IconButton,
+  Image,
 } from '@chakra-ui/react';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useColorModeValue } from '@/components/ui/color-mode';
@@ -282,12 +283,12 @@ export default function OnboardingFlow() {
     setInitState("status");
     let cancelled = false;
     getOnboardingStatus()
-      .then((statusRes) => {
-        if (cancelled) return;
+      .then((statusRes): Promise<{ redirect: boolean; payload: OnboardingPayload | null }> => {
+        if (cancelled) return Promise.resolve({ redirect: true, payload: null });
         if (statusRes.completed) {
           setInitState("redirect-home");
           router.replace("/");
-          return { redirect: true } as const;
+          return Promise.resolve({ redirect: true, payload: null });
         }
         return getOnboarding().then((payload) => ({ redirect: false, payload }));
       })
@@ -448,14 +449,13 @@ export default function OnboardingFlow() {
           <Stack direction="column" gap={3} align="stretch">
             <HStack justify="space-between" align="center" w="full" flexWrap="wrap" gap={2}>
           <HStack gap={3} align="center" minW={0} flex={1}>
-            <Box
-              as="img"
+            <Image
               src="/FreelanceMitraIcon.png"
               alt="FreelanceMitra"
               w="56px"
               h="56px"
               flexShrink={0}
-              objectFit="contain"
+              fit="contain"
             />
             <Box minW={0} flex={1}>
               <Text color="gray.600" fontSize="sm" _dark={{ color: 'gray.400' }}>

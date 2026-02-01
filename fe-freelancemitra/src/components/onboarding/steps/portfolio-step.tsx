@@ -13,7 +13,7 @@ import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
 import SkillsDropdown from '@/components/ui/skills-dropdown';
 import MultiFileUpload from '@/components/ui/multi-file-upload';
-import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, inputBorderStylesWithDarkBg, textareaBorderStyles, textareaBorderStylesWithDarkBg, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 
 const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
 
@@ -82,8 +82,7 @@ export default function PortfolioStep({ data, updateData, invalidFields }: Props
           onChange={(e) => updateData({ portfolioLink: e.target.value })}
           type="url"
           {...inputSizes}
-          {...inputBorderStyles}
-          _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+          {...inputBorderStylesWithDarkBg}
           {...(invalidFields?.includes('portfolioLink') ? invalidBorder : {})}
         />
       </Box>
@@ -149,8 +148,7 @@ export default function PortfolioStep({ data, updateData, invalidFields }: Props
                     value={sample.projectTitle}
                     onChange={(e) => updatePortfolioSample(index, 'projectTitle', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
                 <Box flex={1} minW={0}>
@@ -160,8 +158,7 @@ export default function PortfolioStep({ data, updateData, invalidFields }: Props
                     value={sample.client}
                     onChange={(e) => updatePortfolioSample(index, 'client', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
               </HStack>
@@ -175,8 +172,7 @@ export default function PortfolioStep({ data, updateData, invalidFields }: Props
                   rows={4}
                   px={4}
                   py={2.5}
-                  {...textareaBorderStyles}
-                  _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                  {...textareaBorderStylesWithDarkBg}
                 />
               </Box>
 
@@ -199,8 +195,7 @@ export default function PortfolioStep({ data, updateData, invalidFields }: Props
                   onChange={(e) => updatePortfolioSample(index, 'portfolioLink', e.target.value)}
                   type="url"
                   {...inputSizes}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  {...inputBorderStylesWithDarkBg}
                 />
               </Box>
 

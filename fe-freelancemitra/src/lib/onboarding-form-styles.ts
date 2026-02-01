@@ -16,8 +16,26 @@ export const inputBorderStyles = {
   _hover: { borderColor: "gray.400", _dark: { borderColor: "gray.400" } },
 };
 
+/** Input border styles with dark mode background (for use in inputs that need bg in dark). Avoids duplicate _dark. */
+export const inputBorderStylesWithDarkBg = {
+  ...inputBorderStyles,
+  _dark: { ...inputBorderStyles._dark, bg: "gray.700" },
+};
+
+/** Same as inputBorderStylesWithDarkBg with white text in dark (e.g. select wrapper). Avoids duplicate _dark. */
+export const inputBorderStylesWithDarkBgAndWhiteText = {
+  ...inputBorderStyles,
+  _dark: { ...inputBorderStyles._dark, bg: "gray.700", color: "white" },
+};
+
 /** Same as inputBorderStyles; use for Textarea */
 export const textareaBorderStyles = { ...inputBorderStyles };
+
+/** Textarea border styles with dark mode background. Avoids duplicate _dark. */
+export const textareaBorderStylesWithDarkBg = {
+  ...textareaBorderStyles,
+  _dark: { ...textareaBorderStyles._dark, bg: "gray.700" },
+};
 
 /** For dropdown trigger Buttons - visible border matching inputs */
 export const dropdownTriggerBorderStyles = {
@@ -31,6 +49,18 @@ export const dropdownTriggerBorderStyles = {
     _dark: { borderColor: "blue.400" },
   },
   _hover: { borderColor: "gray.400", _dark: { borderColor: "gray.400" } },
+};
+
+/** Dropdown trigger border styles with dark mode background. Avoids duplicate _dark. */
+export const dropdownTriggerBorderStylesWithDarkBg = {
+  ...dropdownTriggerBorderStyles,
+  _dark: { ...dropdownTriggerBorderStyles._dark, bg: "gray.700" },
+};
+
+/** Invalid input border (use with inputBorderStylesWithDarkBg so _dark is not duplicated). */
+export const invalidBorderForInput = {
+  borderColor: "red.500",
+  _dark: { borderColor: "red.400", bg: "gray.700" },
 };
 
 /** Search input inside dropdowns - same border/size/padding as other inputs */

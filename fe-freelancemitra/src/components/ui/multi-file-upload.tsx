@@ -128,11 +128,11 @@ export default function MultiFileUpload({
                 {files.length}/{MAX_FILES} files · {formatBytes(totalBytes)} / {formatBytes(MAX_TOTAL_BYTES)}
               </Text>
             </HStack>
-            <Wrap spacing={2} align="center">
+            <Wrap gap={2} align="center">
               {files.map((entry, index) => (
                 <WrapItem key={entry.key}>
                   <HStack
-                    spacing={2}
+                    gap={2}
                     py={2}
                     px={3}
                     borderRadius="lg"
@@ -142,12 +142,11 @@ export default function MultiFileUpload({
                     _dark={{ borderColor: "gray.600", bg: "gray.700" }}
                     maxW="100%"
                     flexShrink={0}
-                    gap={2}
                   >
                     <Text
                       fontSize="sm"
                       fontWeight="medium"
-                      noOfLines={1}
+                      lineClamp={1}
                       maxW={{ base: "140px", sm: "180px" }}
                       title={getFileNameFromKey(entry.key)}
                       flexShrink={1}
@@ -158,7 +157,7 @@ export default function MultiFileUpload({
                     <Text fontSize="xs" color="gray.500" _dark={{ color: "gray.400" }} flexShrink={0}>
                       {formatBytes(entry.size)}
                     </Text>
-                    <HStack spacing={1} flexShrink={0}>
+                    <HStack gap={1} flexShrink={0}>
                       {displayUrls[index] && (
                         <Link
                           href={displayUrls[index]}
@@ -195,11 +194,9 @@ export default function MultiFileUpload({
         <HStack gap={2} align="center" flexWrap="wrap">
           <Button
             variant="outline"
-            size="sm"
             disabled={uploading || atLimit || totalAtLimit}
             onClick={() => document.getElementById(inputId)?.click()}
-            {...uploadButtonStyles}
-            _dark={{ ...uploadButtonStyles._dark, bg: "gray.700" }}
+            {...{ ...uploadButtonStyles, size: "sm" }}
             px={4}
             py={2}
           >

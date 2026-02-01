@@ -166,7 +166,7 @@ export default function PlanPage() {
                     size="md"
                     w="full"
                     mt={2}
-                    isDisabled={plan.id === "free"}
+                    disabled={plan.id === "free"}
                   >
                     {plan.cta}
                   </Button>

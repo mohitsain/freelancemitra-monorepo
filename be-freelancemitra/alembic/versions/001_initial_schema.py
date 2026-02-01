@@ -126,7 +126,7 @@ def upgrade() -> None:
         comment="States/provinces per country",
     )
     op.create_index("ix_states_country_id", "states", ["country_id"], unique=False)
-    op.create_index("ix_states_country_code", "states", ["country_id", "code"], unique=True)
+    # Unique index on (country_id, code) is already created by UniqueConstraint above; do not create again.
 
 
 def downgrade() -> None:

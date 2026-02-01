@@ -16,6 +16,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    op.execute("ALTER TABLE user_onboarding ALTER COLUMN certifications DROP DEFAULT")
     op.execute("""
         ALTER TABLE user_onboarding
         ALTER COLUMN certifications TYPE JSONB
@@ -28,6 +29,7 @@ def upgrade() -> None:
             END
         )
     """)
+    op.execute("ALTER TABLE user_onboarding ALTER COLUMN certifications SET DEFAULT '[]'::jsonb")
 
 
 def downgrade() -> None:

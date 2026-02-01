@@ -139,9 +139,10 @@ export default function PortfolioEditorPage() {
 
   useEffect(() => {
     const portfolioId = searchParams.get('id');
-    if (portfolioId && samplePortfolios[portfolioId]) {
-      setPortfolio(samplePortfolios[portfolioId]);
-      setEditedContent(samplePortfolios[portfolioId].htmlContent);
+    if (portfolioId && portfolioId in samplePortfolios) {
+      const p = samplePortfolios[portfolioId as unknown as keyof typeof samplePortfolios];
+      setPortfolio(p);
+      setEditedContent(p.htmlContent);
     }
   }, [searchParams]);
 

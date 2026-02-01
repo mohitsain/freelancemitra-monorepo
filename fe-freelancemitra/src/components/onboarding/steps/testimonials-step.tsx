@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
+import { inputBorderStylesWithDarkBg, textareaBorderStylesWithDarkBg, addSectionButtonStyles, cardStyles, labelStyles, inputSizes } from '@/lib/onboarding-form-styles';
 import SingleFileUpload from '@/components/ui/single-file-upload';
 
 interface Props {
@@ -125,8 +125,7 @@ export default function TestimonialsStep({ data, updateData }: Props) {
                     value={testimonial.clientName}
                     onChange={(e) => updateTestimonial(index, 'clientName', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
                 <Box flex={1} minW={0}>
@@ -136,8 +135,7 @@ export default function TestimonialsStep({ data, updateData }: Props) {
                     value={testimonial.clientTitle}
                     onChange={(e) => updateTestimonial(index, 'clientTitle', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
               </HStack>
@@ -151,8 +149,7 @@ export default function TestimonialsStep({ data, updateData }: Props) {
                   rows={4}
                   px={4}
                   py={2.5}
-                  {...textareaBorderStyles}
-                  _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                  {...textareaBorderStylesWithDarkBg}
                 />
               </Box>
 

@@ -107,7 +107,7 @@ export default function SingleFileUpload({
               minW={0}
               flex={1}
             >
-              <Text fontSize="sm" fontWeight="medium" noOfLines={1} title={getFileNameFromKey(file.key)}>
+              <Text fontSize="sm" fontWeight="medium" lineClamp={1} title={getFileNameFromKey(file.key)}>
                 {getFileNameFromKey(file.key) || "File"}
               </Text>
             </Box>
@@ -144,11 +144,9 @@ export default function SingleFileUpload({
         <HStack gap={2} align="center" flexWrap="wrap">
           <Button
             variant="outline"
-            size="sm"
             disabled={uploading || !!file}
             onClick={() => document.getElementById("single-file-upload-input")?.click()}
-            {...uploadButtonStyles}
-            _dark={{ ...uploadButtonStyles._dark, bg: "gray.700" }}
+            {...{ ...uploadButtonStyles, size: "sm" }}
             px={4}
             py={2}
           >

@@ -13,6 +13,7 @@ import {
   Badge,
   Separator,
   Spinner,
+  Image,
 } from '@chakra-ui/react';
 import { useColorMode } from '@/components/ui/color-mode';
 import { useState, useEffect, useCallback } from 'react';
@@ -188,7 +189,7 @@ export default function PortfolioCreationPage() {
           minH="70vh"
           w="full"
         >
-          <Spinner size="xl" color={accentBlue} thickness="3px" />
+          <Spinner size="xl" color={accentBlue} />
           <Text color={textSecondary} fontSize="sm" mt={4}>
             Loading portfolio…
           </Text>
@@ -224,7 +225,7 @@ export default function PortfolioCreationPage() {
                 boxShadow="lg"
               >
                 {profilePictureUrl ? (
-                  <Box as="img" src={profilePictureUrl} alt="" w="full" h="full" objectFit="cover" loading="lazy" />
+                  <Image src={profilePictureUrl} alt="" w="full" h="full" fit="cover" loading="lazy" />
                 ) : (
                   <Box w="full" h="full" bg={accentBlue} color="white" display="flex" alignItems="center" justifyContent="center" fontSize="3xl" fontWeight="bold">
                     {getInitials(data)}
@@ -349,7 +350,7 @@ export default function PortfolioCreationPage() {
                       <Box key={i} bg={mutedBg} borderRadius="lg" overflow="hidden" borderWidth="1px" borderColor={borderColor}>
                         {imgUrl && (
                           <Box aspectRatio={16 / 10} bg="gray.200" overflow="hidden">
-                            <Box as="img" src={imgUrl} alt="" w="full" h="full" objectFit="cover" loading="lazy" />
+                            <Image src={imgUrl} alt="" w="full" h="full" fit="cover" loading="lazy" />
                           </Box>
                         )}
                         <Box p={4}>
@@ -358,7 +359,7 @@ export default function PortfolioCreationPage() {
                             <Text fontSize="sm" color={textSecondary}>Client: {sample.client}</Text>
                           )}
                           {sample.description && (
-                            <Text fontSize="sm" color={textSecondary} mt={2} noOfLines={3}>{sample.description}</Text>
+                            <Text fontSize="sm" color={textSecondary} mt={2} lineClamp={3}>{sample.description}</Text>
                           )}
                           {(sample.skillsUsed?.length ?? 0) > 0 && (
                             <Box mt={3} display="flex" flexWrap="wrap" gap={2} alignItems="center">
@@ -393,7 +394,7 @@ export default function PortfolioCreationPage() {
                       <VStack align="stretch" gap={3}>
                         {(t.imageKey && testimonialImageUrls[t.imageKey]) ? (
                           <Box borderRadius="md" overflow="hidden" maxW="full" aspectRatio={16 / 10}>
-                            <Box as="img" src={testimonialImageUrls[t.imageKey]} alt="Testimonial" w="full" h="full" objectFit="cover" loading="lazy" />
+                            <Image src={testimonialImageUrls[t.imageKey]} alt="Testimonial" w="full" h="full" fit="cover" loading="lazy" />
                           </Box>
                         ) : null}
                         <VStack align="start" gap={0}>
@@ -420,22 +421,31 @@ export default function PortfolioCreationPage() {
                 <HStack flexWrap="wrap" gap={4}>
                   {data.linkedinUrl && (
                     <Link href={data.linkedinUrl.startsWith('http') ? data.linkedinUrl : `https://${data.linkedinUrl}`} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" leftIcon={<FaLinkedin />} variant="outline" colorScheme="blue">
-                        LinkedIn
+                      <Button size="sm" variant="outline" colorScheme="blue">
+                        <HStack gap={2} as="span">
+                          <FaLinkedin />
+                          LinkedIn
+                        </HStack>
                       </Button>
                     </Link>
                   )}
                   {data.personalWebsite && (
                     <Link href={data.personalWebsite.startsWith('http') ? data.personalWebsite : `https://${data.personalWebsite}`} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" leftIcon={<FaGlobe />} variant="outline" colorScheme="gray">
-                        Website
+                      <Button size="sm" variant="outline" colorScheme="gray">
+                        <HStack gap={2} as="span">
+                          <FaGlobe />
+                          Website
+                        </HStack>
                       </Button>
                     </Link>
                   )}
                   {data.portfolioLink && (
                     <Link href={data.portfolioLink.startsWith('http') ? data.portfolioLink : `https://${data.portfolioLink}`} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" leftIcon={<FaLink />} variant="outline" colorScheme="gray">
-                        Portfolio
+                      <Button size="sm" variant="outline" colorScheme="gray">
+                        <HStack gap={2} as="span">
+                          <FaLink />
+                          Portfolio
+                        </HStack>
                       </Button>
                     </Link>
                   )}

@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStyles, inputBorderStylesWithDarkBg, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 import CurrencyDropdown from '@/components/ui/currency-dropdown';
 
 const invalidBorder = { borderColor: 'red.500', _dark: { borderColor: 'red.400' } };
@@ -134,8 +134,7 @@ export default function AvailabilityRatesStep({ data, updateData, invalidFields 
                 max={168}
                 placeholder="40"
                 {...inputSizes}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                {...inputBorderStylesWithDarkBg}
               />
             </Box>
             <Box flex={1} minW={0}>
@@ -146,8 +145,7 @@ export default function AvailabilityRatesStep({ data, updateData, invalidFields 
                 onChange={(e) => updateData({ startDate: e.target.value })}
                 min={new Date().toISOString().split('T')[0]}
                 {...inputSizes}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                {...inputBorderStylesWithDarkBg}
                 {...(invalidFields?.includes('startDate') ? invalidBorder : {})}
               />
             </Box>
@@ -186,8 +184,7 @@ export default function AvailabilityRatesStep({ data, updateData, invalidFields 
                 min={0}
                 step={0.01}
                 {...inputSizes}
-                {...inputBorderStyles}
-                _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                {...inputBorderStylesWithDarkBg}
                 {...(invalidFields?.includes('hourlyRate') ? invalidBorder : {})}
               />
             </Box>
@@ -207,8 +204,7 @@ export default function AvailabilityRatesStep({ data, updateData, invalidFields 
               value={data.projectBasedRate}
               onChange={(e) => updateData({ projectBasedRate: e.target.value })}
               {...inputSizes}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...inputBorderStylesWithDarkBg}
               {...(invalidFields?.includes('projectBasedRate') ? invalidBorder : {})}
             />
           </Box>
@@ -222,8 +218,7 @@ export default function AvailabilityRatesStep({ data, updateData, invalidFields 
               value={data.retainerRate}
               onChange={(e) => updateData({ retainerRate: e.target.value })}
               {...inputSizes}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...inputBorderStylesWithDarkBg}
               {...(invalidFields?.includes('retainerRate') ? invalidBorder : {})}
             />
           </Box>
@@ -235,8 +230,7 @@ export default function AvailabilityRatesStep({ data, updateData, invalidFields 
               value={data.minProjectSize}
               onChange={(e) => updateData({ minProjectSize: e.target.value })}
               {...inputSizes}
-              {...inputBorderStyles}
-              _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+              {...inputBorderStylesWithDarkBg}
             />
           </Box>
         </Stack>

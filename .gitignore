@@ -6,6 +6,7 @@
 .env.test.local
 .env.production.local
 !.env.example
+scripts/freelancemitra-secret.json
 
 # OS
 .DS_Store

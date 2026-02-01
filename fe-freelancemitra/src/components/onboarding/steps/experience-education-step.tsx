@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { OnboardingData } from '../onboarding-flow';
-import { inputBorderStyles, textareaBorderStyles, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
+import { inputBorderStylesWithDarkBg, textareaBorderStylesWithDarkBg, addSectionButtonStyles, cardStyles, labelStyles, inputSizes, requiredAsteriskStyles } from '@/lib/onboarding-form-styles';
 import SingleFileUpload from '@/components/ui/single-file-upload';
 
 interface Props {
@@ -128,8 +128,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                     value={work.company}
                     onChange={(e) => updateWorkHistory(index, 'company', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
                 <Box flex={1} minW={0}>
@@ -139,8 +138,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                     value={work.jobTitle}
                     onChange={(e) => updateWorkHistory(index, 'jobTitle', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
               </HStack>
@@ -152,8 +150,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                     value={work.startDate}
                     onChange={(e) => updateWorkHistory(index, 'startDate', e.target.value)}
                     {...inputSizes}
-                    {...inputBorderStyles}
-                    _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                    {...inputBorderStylesWithDarkBg}
                   />
                 </Box>
                 <Box flex={1} minW={0}>
@@ -164,8 +161,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                       value={work.endDate === 'Present' ? '' : work.endDate}
                       onChange={(e) => updateWorkHistory(index, 'endDate', e.target.value)}
                       {...inputSizes}
-                      {...inputBorderStyles}
-                      _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                      {...inputBorderStylesWithDarkBg}
                       disabled={work.endDate === 'Present'}
                       flex={{ base: '1 1 100%', sm: '1' }}
                       minW={0}
@@ -201,8 +197,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                   rows={3}
                   px={4}
                   py={2.5}
-                  {...textareaBorderStyles}
-                  _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                  {...textareaBorderStylesWithDarkBg}
                 />
               </Box>
             </Stack>
@@ -253,8 +248,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                   value={edu.degree}
                   onChange={(e) => updateEducation(index, 'degree', e.target.value)}
                   {...inputSizes}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  {...inputBorderStylesWithDarkBg}
                 />
               </Box>
               <Box>
@@ -264,8 +258,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                   value={edu.institution}
                   onChange={(e) => updateEducation(index, 'institution', e.target.value)}
                   {...inputSizes}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  {...inputBorderStylesWithDarkBg}
                 />
               </Box>
               <Box>
@@ -275,8 +268,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                   value={edu.graduationYear}
                   onChange={(e) => updateEducation(index, 'graduationYear', e.target.value)}
                   {...inputSizes}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  {...inputBorderStylesWithDarkBg}
                 />
               </Box>
             </Stack>
@@ -327,8 +319,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                   value={cert.title}
                   onChange={(e) => updateCertification(index, 'title', e.target.value)}
                   {...inputSizes}
-                  {...inputBorderStyles}
-                  _dark={{ ...inputBorderStyles._dark, bg: 'gray.700' }}
+                  {...inputBorderStylesWithDarkBg}
                 />
               </Box>
               <Box>
@@ -340,8 +331,7 @@ export default function ExperienceEducationStep({ data, updateData, invalidField
                   rows={2}
                   px={4}
                   py={2.5}
-                  {...textareaBorderStyles}
-                  _dark={{ ...textareaBorderStyles._dark, bg: 'gray.700' }}
+                  {...textareaBorderStylesWithDarkBg}
                 />
               </Box>
               <Box>

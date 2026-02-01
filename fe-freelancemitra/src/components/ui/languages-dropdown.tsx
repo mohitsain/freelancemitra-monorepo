@@ -8,7 +8,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
-import { dropdownSearchInputStyles, dropdownSearchWrapperStyles, dropdownTriggerBorderStyles } from '@/lib/onboarding-form-styles';
+import { dropdownSearchInputStyles, dropdownSearchWrapperStyles, dropdownTriggerBorderStylesWithDarkBg } from '@/lib/onboarding-form-styles';
 import { getLanguages, type LanguageItem } from '@/lib/masters-api';
 
 interface LanguagesDropdownProps {
@@ -87,8 +87,7 @@ export default function LanguagesDropdown({
         size={size}
         px={6}
         py={3}
-        {...dropdownTriggerBorderStyles}
-        _dark={{ ...dropdownTriggerBorderStyles._dark, bg: 'gray.700' }}
+        {...dropdownTriggerBorderStylesWithDarkBg}
       >
         <Text
           color={selectedLanguages.length > 0 ? 'inherit' : 'gray.500'}

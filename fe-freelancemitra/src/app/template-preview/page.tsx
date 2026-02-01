@@ -411,8 +411,8 @@ export default function TemplatePreviewPage() {
 
   useEffect(() => {
     const templateId = searchParams.get('id');
-    if (templateId && templateData[templateId]) {
-      setTemplate(templateData[templateId]);
+    if (templateId && templateId in templateData) {
+      setTemplate(templateData[templateId as unknown as keyof typeof templateData]);
     }
   }, [searchParams]);
 

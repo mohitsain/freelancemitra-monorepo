@@ -1,0 +1,102 @@
+# FreelanceMitra: frontend (Next.js) + backend (FastAPI) + PostgreSQL + Temporal
+#
+# First time: create .env in repo root (or set env) with:
+#   POSTGRES_USER=postgres
+#   POSTGRES_PASSWORD=postgres
+#   POSTGRES_DB=freelancemitra
+#   NEXTAUTH_SECRET=<same as frontend>
+#   NEXTAUTH_URL=http://localhost:3000
+#   (Optional: OPENAI_API_KEY, AWS_*, etc. for backend)
+#
+# Migrations run automatically when the backend container starts (alembic upgrade head).
+# Temporal uses the same Postgres; it creates DBs "temporal" and "temporal_visibility" on first start.
+#
+# Start:  docker compose up -d
+# Logs:   docker compose logs -f
+# Stop:   docker compose down
+# Ensure .env exists in repo root with POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB (and NEXTAUTH_* for frontend/backend).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-freelancemitra}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-temporal-dbs.sh:/docker-entrypoint-initdb.d/init-temporal-dbs.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-freelancemitra}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  temporal:
+    image: temporalio/auto-setup:latest
+    restart: unless-stopped
+    ports:
+      - "7233:7233"
+    environment:
+      DB: postgres12
+      DB_PORT: "5432"
+      POSTGRES_SEEDS: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-}
+      POSTGRES_PWD: ${POSTGRES_PASSWORD:-}
+      DBNAME: temporal
+      VISIBILITY_DBNAME: temporal_visibility
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./be-freelancemitra
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-freelancemitra}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      # Backend must call frontend by service name for session validation (not localhost)
+      NEXTAUTH_URL: http://frontend:3000
+      CORS_ORIGINS: ${NEXTAUTH_URL:-http://localhost:3000},http://frontend:3000
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-ap-south-1}
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE:-default}
+      TEMPORAL_TASK_QUEUE: ${TEMPORAL_TASK_QUEUE:-freelancemitra-task-queue}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./fe-freelancemitra
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:8000
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      # OAuth (pass from host .env)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_ID: ${GITHUB_ID:-}
+      GITHUB_SECRET: ${GITHUB_SECRET:-}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

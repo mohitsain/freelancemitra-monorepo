@@ -2,6 +2,7 @@
 from functools import lru_cache
 from typing import Optional
 
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,8 +27,19 @@ class Settings(BaseSettings):
     nextauth_secret: str = ""
     nextauth_url: Optional[str] = "http://localhost:3000"
 
-    # CORS
-    cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    # CORS: env CORS_ORIGINS is comma-separated (e.g. "http://localhost:3000,http://frontend:3000")
+    cors_origins_str: str = Field(
+        default="http://localhost:3000,http://127.0.0.1:3000",
+        validation_alias="CORS_ORIGINS",
+    )
+
+    @computed_field
+    @property
+    def cors_origins(self) -> list[str]:
+        s = (self.cors_origins_str or "").strip()
+        if not s:
+            return ["http://localhost:3000", "http://127.0.0.1:3000"]
+        return [origin.strip() for origin in s.split(",") if origin.strip()]
 
     # S3 (FreelanceMitra bucket; use keys or AWS_PROFILE e.g. mohit.kumar)
     aws_access_key_id: Optional[str] = None

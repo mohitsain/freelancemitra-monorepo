@@ -41,7 +41,14 @@ export default function CountryDropdown({
     let cancelled = false;
     getCountries().then((list) => {
       if (!cancelled) {
-        setCountries(list);
+        // Dedupe by code so React keys are unique (e.g. backend may return duplicate BJ)
+        const seen = new Set<string>();
+        const deduped = list.filter((c) => {
+          if (seen.has(c.code)) return false;
+          seen.add(c.code);
+          return true;
+        });
+        setCountries(deduped);
         setLoading(false);
       }
     }).catch(() => { if (!cancelled) setLoading(false); });

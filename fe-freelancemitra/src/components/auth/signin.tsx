@@ -7,7 +7,8 @@ import {
   Heading,
   Container,
   Flex,
-  Spinner
+  Spinner,
+  Image,
 } from '@chakra-ui/react';
 
 import { FaGoogle } from "react-icons/fa";
@@ -49,7 +50,7 @@ export default function SignInCard() {
         >
           <VStack gap={6}>
             {/* Logo */}
-            <Box as="img" src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="96px" h="96px" objectFit="contain" />
+            <Image src="/FreelanceMitraIcon.png" alt="FreelanceMitra" w="96px" h="96px" fit="contain" />
             {/* Header */}
             <VStack gap={2}>
               <Heading size="lg" textAlign="center">
