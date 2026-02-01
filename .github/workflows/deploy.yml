@@ -1,17 +1,13 @@
-name: Manual Deploy Develop
+name: Deploy Develop Branch
 
 on:
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Why are you deploying?'
-        required: false
-        default: 'Manual update'
+  push:
+    branches:
+      - develop
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # This MUST match your GitHub Settings > Environments name exactly
     environment: development 
 
     steps:
@@ -27,29 +23,22 @@ jobs:
           port: 22
           script_stop: true 
           script: |
-            echo "Deployment initiated for: ${{ github.event.inputs.reason }}"
-            
             # 1. Navigate to directory
             cd /home/ubuntu/freelancemitra/freelancemitra-monorepo
             
-            # 2. Fix Permissions
-            # Ensures the 'ubuntu' user owns the files to avoid the FETCH_HEAD error
+            # 2. FIX PERMISSIONS (Solves the FETCH_HEAD error)
+            # This ensures the 'ubuntu' user owns all files, even if created by root/docker previously
             sudo chown -R ubuntu:ubuntu .
             
-            # 3. Force Sync with GitHub
-            # git reset --hard is used to clear any accidental local edits on the EC2
+            # 3. Update the code
             git fetch origin develop
             git checkout develop
-            git reset --hard origin/develop
             git pull origin develop
             
-            # 4. Restart Services
-            # --build ensures your latest code changes are baked into the new containers
+            # 4. Restart services
+            # Using 'sudo' here ensures docker has the permissions it needs
             sudo docker compose down
             sudo docker compose up -d --build
             
             # 5. Maintenance
-            # Removes old Docker images to keep your EC2 disk from getting full
             sudo docker image prune -f
-            
-            echo "✅ Deployment finished successfully!"
