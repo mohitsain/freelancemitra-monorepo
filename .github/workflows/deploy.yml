@@ -1,17 +1,17 @@
 name: Manual Deploy Develop
 
 on:
-  # This enables the "Run workflow" button in GitHub Actions
   workflow_dispatch:
     inputs:
-      log_message:
-        description: 'Reason for deployment (Optional)'
+      reason:
+        description: 'Why are you deploying?'
         required: false
         default: 'Manual update'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # This MUST match your GitHub Settings > Environments name exactly
     environment: development 
 
     steps:
@@ -27,26 +27,29 @@ jobs:
           port: 22
           script_stop: true 
           script: |
-            echo "Starting deployment: ${{ github.event.inputs.log_message }}"
+            echo "Deployment initiated for: ${{ github.event.inputs.reason }}"
             
             # 1. Navigate to directory
             cd /home/ubuntu/freelancemitra/freelancemitra-monorepo
             
             # 2. Fix Permissions
+            # Ensures the 'ubuntu' user owns the files to avoid the FETCH_HEAD error
             sudo chown -R ubuntu:ubuntu .
             
-            # 3. Clean local changes & Update
-            # 'git reset --hard' ensures manual edits on the server don't block the pull
+            # 3. Force Sync with GitHub
+            # git reset --hard is used to clear any accidental local edits on the EC2
             git fetch origin develop
             git checkout develop
             git reset --hard origin/develop
             git pull origin develop
             
-            # 4. Restart services
-            # Using --pull ensures Docker grabs the latest base images
+            # 4. Restart Services
+            # --build ensures your latest code changes are baked into the new containers
             sudo docker compose down
-            sudo docker compose up -d --build --pull
+            sudo docker compose up -d --build
             
             # 5. Maintenance
+            # Removes old Docker images to keep your EC2 disk from getting full
             sudo docker image prune -f
-            echo "Deployment successful!"
+            
+            echo "✅ Deployment finished successfully!"
