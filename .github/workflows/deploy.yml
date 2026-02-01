@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # UNCOMMENT the line below if you created an "Environment" in GitHub Settings
-    # environment: development 
+    environment: development 
 
     steps:
       - name: Checkout code
