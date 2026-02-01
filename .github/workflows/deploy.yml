@@ -1,9 +1,9 @@
-name: Deploy FreelanceMitra
+name: Deploy Develop Branch
 
 on:
   push:
     branches:
-      - main  # Triggers deployment when you push to the main branch
+      - develop  # Trigger only when pushing to develop
 
 jobs:
   deploy:
@@ -12,22 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to EC2 via SSH
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Navigate to your project directory
             cd /home/ubuntu/freelancemitra/freelancemitra-monorepo
             
-            # Pull the latest changes from GitHub
+            # Explicitly pull the develop branch
+            git fetch origin develop
+            git checkout develop
             git pull origin develop
             
-            # Rebuild and restart the containers
             docker compose down
             docker compose up -d --build
-            
-            # Optional: Clean up old Docker images to save space
-            docker image prune -f
