@@ -42,3 +42,4 @@ jobs:
             
             # 5. Maintenance
             sudo docker image prune -f
+            echo "Deployment successful!"
