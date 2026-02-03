@@ -1,14 +1,14 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Heading,
-  Button,
-  Icon,
+import { 
+  Box, 
+  VStack, 
+  HStack, 
+  Text, 
+  Heading, 
+  Button, 
+  Icon, 
   Textarea,
   Input,
   Grid,
@@ -34,7 +34,7 @@ import {
   updateProposal,
   type ProposalItem,
 } from "@/lib/proposals-api";
-import {
+import { 
   inputBorderStylesWithDarkBg,
   inputBorderStylesWithDarkBgAndWhiteText,
   textareaBorderStylesWithDarkBg,
@@ -259,17 +259,17 @@ export default function ProposalBuildingPage() {
         >
           {/* Left 65%: Header, form, main proposal */}
           <VStack gap={6} align="stretch" minW={0}>
-            <Box>
+        <Box>
               <HStack gap={4} mb={2}>
-                <Icon as={FaFileAlt} color={accentBlue} fontSize="2xl" />
+            <Icon as={FaFileAlt} color={accentBlue} fontSize="2xl" />
                 <Heading size="lg" color={textPrimary}>
                   Proposal Generator
                 </Heading>
-              </HStack>
-              <Text color={textSecondary} fontSize="lg">
+          </HStack>
+          <Text color={textSecondary} fontSize="lg">
                 Enter the job description and optional details. AI will generate a personalized proposal from your profile.
-              </Text>
-            </Box>
+          </Text>
+        </Box>
 
             <Box {...cardStyles} p={{ base: 5, md: 6 }}>
               <VStack gap={5} align="stretch">
@@ -287,7 +287,7 @@ export default function ProposalBuildingPage() {
                     px={inputSizes.px}
                     py={inputSizes.py}
                   />
-                </Box>
+          </Box>
 
                 <Box>
                   <Text {...labelStyles}>Client name (optional)</Text>
@@ -299,7 +299,7 @@ export default function ProposalBuildingPage() {
                     px={inputSizes.px}
                     py={inputSizes.py}
                   />
-                </Box>
+          </Box>
 
                 <HStack gap={4} wrap="wrap" align="flex-end">
                   <Box flex={1} minW="140px">
@@ -332,8 +332,8 @@ export default function ProposalBuildingPage() {
                           </option>
                         ))}
                       </select>
-                    </Box>
-                  </Box>
+          </Box>
+          </Box>
                   <Box flex={1} minW="120px">
                     <Text {...labelStyles}>Job budget (optional)</Text>
                     <Input
@@ -344,7 +344,7 @@ export default function ProposalBuildingPage() {
                       px={inputSizes.px}
                       py={inputSizes.py}
                     />
-                  </Box>
+              </Box>
                   <Box flex={1} minW="120px">
                     <Text {...labelStyles}>Hourly rate (optional)</Text>
                     <Input
@@ -355,7 +355,7 @@ export default function ProposalBuildingPage() {
                       px={inputSizes.px}
                       py={inputSizes.py}
                     />
-                  </Box>
+        </Box>
                 </HStack>
 
                 <HStack gap={3} w="full">
@@ -608,9 +608,9 @@ export default function ProposalBuildingPage() {
                             Complete details
                           </HStack>
                         </Button>
-                      </VStack>
-                    </Box>
-                  ))}
+                </VStack>
+              </Box>
+            ))}
                 </VStack>
                     {historyTotal > 0 && (
                       <HStack
@@ -903,8 +903,8 @@ export default function ProposalBuildingPage() {
                       <Text color={textPrimary} fontSize="sm">
                         {formatDate(detailModalItem.createdAt)} / {formatDate(detailModalItem.updatedAt)}
                       </Text>
-                    </Box>
-                  </VStack>
+        </Box>
+      </VStack>
                 )}
               </DialogBody>
             </DialogContent>

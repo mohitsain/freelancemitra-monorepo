@@ -12,6 +12,7 @@ import {
   Icon, 
   IconButton, 
   Image,
+  Spinner,
   useDisclosure,
   Drawer,
   DrawerContent,
@@ -45,6 +46,7 @@ import {
 import ThemeToggle from '@/components/common/theme-toggle';
 import { useColorMode } from '@/components/ui/color-mode';
 import { useBasicUserInfo } from '@/hooks/use-user-queries';
+import { useOnboardingStatus } from '@/hooks/use-onboarding-queries';
 
 /** Abbreviation from first letter of first name + first letter of last name. */
 function getInitials(name: string | null | undefined): string {
@@ -201,8 +203,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { colorMode } = useColorMode();
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
+  const { data: onboardingStatus, isLoading: onboardingLoading, isError: onboardingError } = useOnboardingStatus({
+    enabled: sessionStatus === 'authenticated',
+    staleTime: 0,
+  });
 
+  // Treat "no status yet" or "not completed" as must redirect to onboarding (undefined = not completed)
+  const onboardingNotCompleted =
+    onboardingError || onboardingStatus === undefined || !onboardingStatus.completed;
+
+  // Unauthorized or onboarding not completed: do not show any left-menu pages
+  useEffect(() => {
+    if (sessionStatus === 'unauthenticated') {
+      const callbackUrl = pathname && pathname !== '/' ? encodeURIComponent(pathname) : undefined;
+      router.replace(callbackUrl ? `/signin?callbackUrl=${callbackUrl}` : '/signin');
+      return;
+    }
+    if (sessionStatus !== 'authenticated') return;
+    if (onboardingLoading) return;
+    if (onboardingNotCompleted) {
+      router.replace('/onboarding');
+    }
+  }, [sessionStatus, onboardingLoading, onboardingNotCompleted, pathname, router]);
+
+  // All hooks must run unconditionally (before any early return) to satisfy Rules of Hooks
   // Prefetch all sidebar routes on mount so first click is fast
   useEffect(() => {
     PREFETCH_ROUTES.forEach((href) => router.prefetch(href));
@@ -210,7 +235,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { open, onOpen, onClose } = useDisclosure();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // When any account page is open (Profile, Plan, Help), keep global left sidebar collapsed by default
   const accountRoutes = ['/profile', '/plan', '/help'];
   useEffect(() => {
     if (accountRoutes.includes(pathname)) {
@@ -277,6 +301,38 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((prev) => !prev);
   }, []);
+
+  // Early returns for loading/redirect UI only after all hooks have run
+  if (sessionStatus === 'unauthenticated') {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
+        <Box textAlign="center">
+          <Spinner size="xl" mb={4} />
+          <Text color="gray.500" fontSize="sm">Redirecting to sign in…</Text>
+        </Box>
+      </Box>
+    );
+  }
+  if (sessionStatus === 'loading' || (sessionStatus === 'authenticated' && onboardingLoading)) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
+        <Box textAlign="center">
+          <Spinner size="xl" mb={4} />
+          <Text color="gray.500" fontSize="sm">Loading…</Text>
+        </Box>
+      </Box>
+    );
+  }
+  if (sessionStatus === 'authenticated' && onboardingNotCompleted) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
+        <Box textAlign="center">
+          <Spinner size="xl" mb={4} />
+          <Text color="gray.500" fontSize="sm">Redirecting to onboarding…</Text>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box minH="100vh" bg={bgColor}>

@@ -200,7 +200,7 @@ export default function PortfolioCreationPage() {
 
   return (
     <DashboardLayout>
-      <Box>
+        <Box>
         <VStack gap={3} align="stretch">
         {/* Portfolio view from onboarding data */}
         <Box
@@ -248,11 +248,11 @@ export default function PortfolioCreationPage() {
                   <HStack gap={2} color={textSecondary} fontSize="sm">
                     <Icon as={FaMapMarkerAlt} />
                     <Text>{locationStr}</Text>
-                  </HStack>
+          </HStack>
                 )}
               </VStack>
             </VStack>
-          </Box>
+        </Box>
 
           <Box px={5} py={3}>
             {/* About */}
@@ -266,7 +266,7 @@ export default function PortfolioCreationPage() {
                   {data.detailedDescription && (
                     <Text color={textSecondary} fontSize="sm" whiteSpace="pre-wrap">{data.detailedDescription}</Text>
                   )}
-                </VStack>
+                  </VStack>
               </Box>
             )}
 
@@ -374,15 +374,15 @@ export default function PortfolioCreationPage() {
                       </Box>
                     );
                   })}
-                </SimpleGrid>
-              </Box>
+          </SimpleGrid>
+        </Box>
             )}
 
             {/* Testimonials */}
             {(data.testimonials?.length ?? 0) > 0 && data.testimonials.some((t) => t.testimonial || t.clientName) && (
               <Box mb={5}>
                 <Heading size="md" color={textPrimary} mb={2}>
-                  <HStack gap={2}>
+                    <HStack gap={2}>
                     <Icon as={FaQuoteLeft} color={accentBlue} />
                     <span>Testimonials</span>
                   </HStack>
@@ -401,13 +401,13 @@ export default function PortfolioCreationPage() {
                           <Text fontWeight="semibold" color={textPrimary} fontSize="sm">{t.clientName}</Text>
                           {t.clientTitle && <Text fontSize="xs" color={textSecondary}>{t.clientTitle}</Text>}
                         </VStack>
-                      </VStack>
+                  </VStack>
                     </Box>
                   ))}
                 </SimpleGrid>
               </Box>
             )}
-
+                  
             {/* Social & contact */}
             {(data.linkedinUrl || data.otherSocialMedia || data.personalWebsite || data.portfolioLink) && (
               <>

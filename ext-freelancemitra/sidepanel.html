@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FreelanceMitra</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p id="loading-message">Checking login…</p>
+    </div>
+
+    <div id="gate-login" class="state-gate hidden">
+      <h2>Not logged in</h2>
+      <p id="gate-login-hint">Log in on FreelanceMitra first, then use this extension.</p>
+      <a id="btn-open-site" class="btn btn-primary" href="#" target="_blank">Open FreelanceMitra</a>
+    </div>
+
+    <div id="gate-onboarding" class="state-gate hidden">
+      <h2>Complete onboarding</h2>
+      <p>Finish your profile on FreelanceMitra to use the extension.</p>
+      <a id="btn-open-onboarding" class="btn btn-primary" href="#" target="_blank">Complete onboarding</a>
+    </div>
+
+    <div id="gate-error" class="state-gate hidden">
+      <h2 id="error-title">Something went wrong</h2>
+      <p id="error-message">Could not reach FreelanceMitra. Check that you're logged in on the website and that BASE_URL in config.js matches your site.</p>
+      <button type="button" id="btn-retry" class="btn btn-primary">Try again</button>
+    </div>
+
+    <div id="main" class="hidden">
+      <h1>FreelanceMitra</h1>
+      <p style="color: var(--muted); font-size: 12px; margin: 0 0 12px 0;">You're logged in and onboarded.</p>
+
+      <div class="options">
+        <button type="button" id="opt-upwork-onboard" class="option">
+          <strong>Onboard to Upwork</strong>
+          <span>Auto-fill your Upwork profile from FreelanceMitra.</span>
+        </button>
+        <button type="button" id="opt-proposal" class="option">
+          <strong>Create proposal from job</strong>
+          <span>Generate a proposal from the current Upwork job and auto-fill.</span>
+        </button>
+      </div>
+
+      <div id="proposal-section" class="card hidden">
+        <h2>Proposal from job description</h2>
+        <div class="form-group">
+          <label>Job description (or paste below)</label>
+          <textarea id="job-description" placeholder="Paste job description or use 'Use current page' if on an Upwork job."></textarea>
+        </div>
+        <div class="actions">
+          <button type="button" id="btn-use-current-page" class="btn btn-secondary">Use current page</button>
+          <button type="button" id="btn-generate" class="btn btn-primary">Generate proposal</button>
+        </div>
+        <p id="proposal-error" class="error hidden"></p>
+        <p id="proposal-success" class="success hidden"></p>
+        <div id="proposal-result" class="proposal-result hidden"></div>
+        <div class="actions" id="proposal-actions" style="margin-top: 8px;">
+          <button type="button" id="btn-fill-upwork" class="btn btn-primary hidden">Fill on Upwork</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

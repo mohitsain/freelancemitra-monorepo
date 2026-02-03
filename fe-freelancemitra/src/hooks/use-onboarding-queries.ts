@@ -18,11 +18,12 @@ import { queryKeys } from "@/lib/query-keys";
  * Use these instead of raw fetch + useState for caching, refetch, and loading/error state.
  */
 
-export function useOnboardingStatus() {
+export function useOnboardingStatus(opts?: { enabled?: boolean; staleTime?: number }) {
   return useQuery({
     queryKey: queryKeys.onboarding.status(),
     queryFn: getOnboardingStatus,
-    // Only run when user is authenticated (call from components that already check session)
+    enabled: opts?.enabled !== false,
+    staleTime: opts?.staleTime ?? 0,
   });
 }
 

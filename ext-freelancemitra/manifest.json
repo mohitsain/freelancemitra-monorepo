@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "FreelanceMitra",
+  "version": "1.0.0",
+  "description": "Onboard to Upwork and create proposals from job descriptions. Requires login and onboarding on FreelanceMitra.",
+  "permissions": [
+    "sidePanel",
+    "cookies",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.upwork.com/*",
+    "https://*.upwork.com/*",
+    "http://localhost:3000/*",
+    "http://localhost/*",
+    "http://127.0.0.1:3000/*",
+    "http://127.0.0.1/*",
+    "http://localhost:8000/*",
+    "https://*.freelancemitra.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.upwork.com/*", "https://*.upwork.com/*"],
+      "js": ["content-upwork.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "http://localhost/*",
+        "http://127.0.0.1:3000/*",
+        "https://*.freelancemitra.com/*"
+      ],
+      "js": ["content-site.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

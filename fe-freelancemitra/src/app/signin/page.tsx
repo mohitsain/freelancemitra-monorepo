@@ -1,13 +1,34 @@
 "use client"
-import { Box, Text, Container, useBreakpointValue } from '@chakra-ui/react'
-import React from 'react'
+import { Box, Container, useBreakpointValue, Spinner } from '@chakra-ui/react'
+import React, { useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Lottie from "lottie-react";
 import animationData from "../../../public/animation/signin.json";
 import SignInCard from '@/components/auth/signin';
 
 const SignInPage = () => {
-    const isMobile = useBreakpointValue({ base: true, md: false });
-    
+  const isMobile = useBreakpointValue({ base: true, md: false });
+  const { status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace('/');
+    }
+  }, [status, router]);
+
+  // Already logged in: show brief loading then redirect (handled in useEffect)
+  if (status === 'authenticated') {
+    return (
+      <Container maxW="container.xl" py={8}>
+        <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
+          <Spinner size="xl" />
+        </Box>
+      </Container>
+    );
+  }
+
   return (
     <Container maxW="container.xl" py={8}>
         <Box style={{
